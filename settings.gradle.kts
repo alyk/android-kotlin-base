@@ -20,5 +20,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "test23"
-include(":app")
- 
+include(":app", ":core:model", ":core:data", ":core:database", ":core:ui", ":feature:discover", ":feature:search", ":feature:detail", ":feature:favourites")
