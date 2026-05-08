@@ -1,0 +1,3 @@
+D:\proj\alyk\test23\feature\detail\src\main\kotlin\com\example\feature\detail\DetailViewModel.kt
+D:\proj\alyk\test23\feature\detail\src\main\kotlin\com\example\feature\detail\DetailContract.kt
+D:\proj\alyk\test23\feature\detail\src\main\kotlin\com\example\feature\detail\DetailScreen.kt

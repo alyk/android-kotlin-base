@@ -1,0 +1,3 @@
+D:\proj\alyk\test23\feature\search\src\main\kotlin\com\example\feature\search\SearchScreen.kt
+D:\proj\alyk\test23\feature\search\src\main\kotlin\com\example\feature\search\SearchViewModel.kt
+D:\proj\alyk\test23\feature\search\src\main\kotlin\com\example\feature\search\SearchContract.kt

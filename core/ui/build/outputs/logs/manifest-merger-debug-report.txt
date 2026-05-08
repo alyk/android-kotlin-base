@@ -1,0 +1,16 @@
+-- Merging decision tree log ---
+manifest
+ADDED from D:\proj\alyk\test23\core\ui\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest3505285954751293887.xml:2:13-83
+INJECTED from D:\proj\alyk\test23\core\ui\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest3505285954751293887.xml:2:13-83
+	package
+		INJECTED from D:\proj\alyk\test23\core\ui\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest3505285954751293887.xml
+	xmlns:android
+		ADDED from D:\proj\alyk\test23\core\ui\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest3505285954751293887.xml:2:23-81
+uses-sdk
+INJECTED from D:\proj\alyk\test23\core\ui\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest3505285954751293887.xml reason: use-sdk injection requested
+INJECTED from D:\proj\alyk\test23\core\ui\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest3505285954751293887.xml
+INJECTED from D:\proj\alyk\test23\core\ui\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest3505285954751293887.xml
+	android:targetSdkVersion
+		INJECTED from D:\proj\alyk\test23\core\ui\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest3505285954751293887.xml
+	android:minSdkVersion
+		INJECTED from D:\proj\alyk\test23\core\ui\build\intermediates\tmp\ProcessLibraryManifest\debug\tempAndroidManifest3505285954751293887.xml

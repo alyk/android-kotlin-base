@@ -1,0 +1,3 @@
+D:\proj\alyk\test23\feature\favourites\src\main\kotlin\com\example\feature\favourites\FavouritesContract.kt
+D:\proj\alyk\test23\feature\favourites\src\main\kotlin\com\example\feature\favourites\FavouritesViewModel.kt
+D:\proj\alyk\test23\feature\favourites\src\main\kotlin\com\example\feature\favourites\FavouritesScreen.kt
