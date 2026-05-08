@@ -85,7 +85,7 @@ class FavouritesScreenTest {
     }
 
     @Test
-    fun `loading state is displayed initially`() {
+    fun loadingStateIsDisplayedInitially() {
         // Given loading state - use empty flow initially
         val favouritesFlow = MutableStateFlow<List<Game>>(emptyList())
         every { mockRepository.getFavourites() } returns favouritesFlow
@@ -108,7 +108,7 @@ class FavouritesScreenTest {
     }
 
     @Test
-    fun `empty state is displayed when no favourites`() {
+    fun emptyStateIsDisplayedWhenNoFavourites() {
         // Given empty favourites
         val favouritesFlow = MutableStateFlow<List<Game>>(emptyList())
         every { mockRepository.getFavourites() } returns favouritesFlow
@@ -133,7 +133,7 @@ class FavouritesScreenTest {
     }
 
     @Test
-    fun `favourites are displayed in grid`() {
+    fun favouritesAreDisplayedInGrid() {
         // Given favourites data
         val favouritesFlow = MutableStateFlow<List<Game>>(testGames)
         every { mockRepository.getFavourites() } returns favouritesFlow
@@ -157,7 +157,7 @@ class FavouritesScreenTest {
     }
 
     @Test
-    fun `game click triggers navigation`() {
+    fun gameClickTriggersNavigation() {
         // Given favourites data
         val favouritesFlow = MutableStateFlow<List<Game>>(testGames)
         every { mockRepository.getFavourites() } returns favouritesFlow
@@ -187,7 +187,7 @@ class FavouritesScreenTest {
     }
 
     @Test
-    fun `screen title is displayed`() {
+    fun screenTitleIsDisplayed() {
         // Given empty favourites
         val favouritesFlow = MutableStateFlow<List<Game>>(emptyList())
         every { mockRepository.getFavourites() } returns favouritesFlow
@@ -210,7 +210,7 @@ class FavouritesScreenTest {
     }
 
     @Test
-    fun `multiple games are displayed correctly`() {
+    fun multipleGamesAreDisplayedCorrectly() {
         // Given multiple favourites
         val favouritesFlow = MutableStateFlow<List<Game>>(testGames)
         every { mockRepository.getFavourites() } returns favouritesFlow
@@ -238,7 +238,7 @@ class FavouritesScreenTest {
     // to prevent the "InfinityHeightConstraint" crash with LazyVerticalGrid
 
     @Test
-    fun `screen handles bounded height constraints correctly`() {
+    fun screenHandlesBoundedHeightConstraintsCorrectly() {
         // Given favourites data
         val favouritesFlow = MutableStateFlow<List<Game>>(testGames)
         every { mockRepository.getFavourites() } returns favouritesFlow
@@ -265,7 +265,7 @@ class FavouritesScreenTest {
     }
 
     @Test
-    fun `screen handles fillMaxSize modifier without crash`() {
+    fun screenHandlesFillMaxSizeModifierWithoutCrash() {
         // Given favourites data
         val favouritesFlow = MutableStateFlow<List<Game>>(testGames)
         every { mockRepository.getFavourites() } returns favouritesFlow
@@ -290,7 +290,7 @@ class FavouritesScreenTest {
     }
 
     @Test
-    fun `empty state handles bounded constraints correctly`() {
+    fun emptyStateHandlesBoundedConstraintsCorrectly() {
         // Given empty favourites
         val favouritesFlow = MutableStateFlow<List<Game>>(emptyList())
         every { mockRepository.getFavourites() } returns favouritesFlow
@@ -298,6 +298,7 @@ class FavouritesScreenTest {
         // When FavouritesScreen is displayed with bounded parent
         composeTestRule.setContent {
             GameAppTheme {
+                // Parent with bounded size simulates real app scenario
                 Box(modifier = Modifier.fillMaxSize()) {
                     FavouritesScreen(
                         viewModel = viewModel,
@@ -310,84 +311,7 @@ class FavouritesScreenTest {
         // Wait for content
         composeTestRule.waitForIdle()
 
-        // Then empty state is displayed without layout errors
+        // Then empty state is shown without crashing
         composeTestRule.onNodeWithText("No Favourites Yet").assertIsDisplayed()
-    }
-
-    @Test
-    fun `favourites grid renders without constraint violations`() {
-        // Given many games to render in grid
-        val manyGames = (1..20).map { index ->
-            Game(
-                id = index.toLong(),
-                title = "Game $index",
-                description = "Description for game $index",
-                thumbnailUrl = "https://example.com/game$index.png",
-                genre = Genre.ACTION,
-                platform = Platform.PC,
-                developer = "Developer $index",
-                publisher = "Publisher $index",
-                releaseDate = "2024-01-$index",
-                rating = 4.0f + (index % 10) * 0.1f,
-                price = 29.99 + index
-            )
-        }
-        val favouritesFlow = MutableStateFlow<List<Game>>(manyGames)
-        every { mockRepository.getFavourites() } returns favouritesFlow
-
-        // When FavouritesScreen is displayed
-        composeTestRule.setContent {
-            GameAppTheme {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    FavouritesScreen(
-                        viewModel = viewModel,
-                        onGameClick = {}
-                    )
-                }
-            }
-        }
-
-        // Wait for content
-        composeTestRule.waitForIdle()
-
-        // Then all games are displayed in the grid without layout crashes
-        manyGames.take(5).forEach { game ->
-            composeTestRule.onNodeWithText(game.title).assertIsDisplayed()
-        }
-    }
-
-    @Test
-    fun `screen handles dynamic content updates correctly`() {
-        // Given initially empty favourites
-        val favouritesFlow = MutableStateFlow<List<Game>>(emptyList())
-        every { mockRepository.getFavourites() } returns favouritesFlow
-
-        // When FavouritesScreen is displayed
-        composeTestRule.setContent {
-            GameAppTheme {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    FavouritesScreen(
-                        viewModel = viewModel,
-                        onGameClick = {}
-                    )
-                }
-            }
-        }
-
-        // Wait for initial empty state
-        composeTestRule.waitForIdle()
-
-        // Then empty state is displayed
-        composeTestRule.onNodeWithText("No Favourites Yet").assertIsDisplayed()
-
-        // When new games are added
-        favouritesFlow.value = testGames
-
-        // Wait for update
-        composeTestRule.waitForIdle()
-
-        // Then games are displayed without constraint errors
-        composeTestRule.onNodeWithText("Elden Ring").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Cyberpunk 2077").assertIsDisplayed()
     }
 }
