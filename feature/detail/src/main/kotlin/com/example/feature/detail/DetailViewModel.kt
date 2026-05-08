@@ -1,12 +1,12 @@
 package com.example.feature.detail
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.core.data.repository.GameRepository
-import com.example.core.data.repository.GameRepositoryImpl
 import com.example.core.data.repository.UserRepository
-import com.example.core.data.repository.UserRepositoryImpl
 import com.example.core.model.Result
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,14 +14,16 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * ViewModel for the Game Detail screen.
  * Displays detailed information about a game.
  */
-class DetailViewModel(
-    private val gameRepository: GameRepository = GameRepositoryImpl(),
-    private val userRepository: UserRepository? = null
+@HiltViewModel
+class DetailViewModel @Inject constructor(
+    private val gameRepository: GameRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(GameDetailUiState())
@@ -91,7 +93,7 @@ class DetailViewModel(
     
     private fun checkFavouriteStatus(gameId: Long) {
         viewModelScope.launch {
-            val isFav = userRepository?.isFavourited(gameId) ?: false
+            val isFav = userRepository.isFavourited(gameId)
             _uiState.update {
                 it.copy(
                     isFavourite = isFav,
@@ -104,11 +106,6 @@ class DetailViewModel(
     private fun toggleFavourite() {
         viewModelScope.launch {
             val game = _uiState.value.game ?: return@launch
-
-            if (userRepository == null) {
-                _uiState.update { it.copy(isFavourite = !it.isFavourite) }
-                return@launch
-            }
 
             if (_uiState.value.isFavourite) {
                 userRepository.removeFavourite(game.id)

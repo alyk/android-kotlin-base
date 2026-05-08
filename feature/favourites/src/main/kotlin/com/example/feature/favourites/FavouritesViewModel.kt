@@ -1,13 +1,10 @@
 package com.example.feature.favourites
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.core.data.repository.UserRepository
-import com.example.core.data.repository.UserRepositoryImpl
-import com.example.core.database.datasource.DatabaseDataSource
-import com.example.core.database.repository.UserLocalRepository
 import com.example.core.model.Result
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,16 +12,15 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * ViewModel for the Favourites screen.
  * Displays the user's favourite games.
  */
-class FavouritesViewModel(
-    context: Context,
-    private val userRepository: UserRepository = UserRepositoryImpl(
-        DatabaseDataSource.getUserLocalRepository(context)
-    )
+@HiltViewModel
+class FavouritesViewModel @Inject constructor(
+    private val userRepository: UserRepository
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(FavouritesUiState())
