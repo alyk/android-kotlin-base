@@ -7,7 +7,7 @@ A production-ready Android application template built with modern architecture a
 This project follows **Clean Architecture** with a modular structure:
 
 ```
-test23/
+kotlin-android-base/
 ├── app/                    # Main application module
 ├── core/                   # Core business logic modules
 │   ├── model/             # Domain models & entities
