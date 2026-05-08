@@ -1,8 +1,11 @@
 package com.example.core.database.datasource
 
 import com.example.core.database.AppDatabase
+import com.example.core.database.dao.FavouriteGameDao
 import com.example.core.database.dao.GameDao
 import com.example.core.database.dao.UserDao
+import com.example.core.database.repository.FavouritesRepository
+import com.example.core.database.repository.FavouritesRepositoryImpl
 import com.example.core.database.repository.GameLocalRepository
 import com.example.core.database.repository.GameLocalRepositoryImpl
 import com.example.core.database.repository.UserLocalRepository
@@ -23,6 +26,9 @@ object DatabaseDataSource {
     
     @Volatile
     private var userLocalRepository: UserLocalRepository? = null
+    
+    @Volatile
+    private var favouritesRepository: FavouritesRepository? = null
     
     /**
      * Gets the database instance

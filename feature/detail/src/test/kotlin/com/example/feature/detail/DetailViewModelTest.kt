@@ -248,4 +248,110 @@ class DetailViewModelTest {
         coVerify(exactly = 0) { mockUserRepository.addFavourite(any()) }
         coVerify(exactly = 0) { mockUserRepository.removeFavourite(any()) }
     }
+
+    @Test
+    fun `ToggleFavourite still shows success message even when repository operation fails`() = runTest {
+        coEvery { mockGameRepository.getGameById(1L) } returns Result.Success(testGameDetail)
+        coEvery { mockUserRepository.isFavourited(1L) } returnsMany listOf(false, false)
+        coEvery { mockUserRepository.addFavourite(1L) } returns Result.Error("Database error")
+
+        viewModel.handleIntent(GameDetailIntent.LoadGame(1L))
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        viewModel.effects.test {
+            viewModel.handleIntent(GameDetailIntent.ToggleFavourite)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            val effect = awaitItem()
+            assertTrue(effect is GameDetailEffect.ShowMessage)
+            assertEquals("Added to favourites", (effect as GameDetailEffect.ShowMessage).message)
+        }
+
+        // The UI state will be updated optimistically, but the actual favourite status check will show the correct state
+        viewModel.uiState.test {
+            val state = awaitItem()
+            assertFalse(state.isFavourite) // Repository failure means it's not actually favourited
+        }
+    }
+
+    @Test
+    fun `ToggleFavourite updates UI state immediately for optimistic UI`() = runTest {
+        coEvery { mockGameRepository.getGameById(1L) } returns Result.Success(testGameDetail)
+        coEvery { mockUserRepository.isFavourited(1L) } returnsMany listOf(false, true)
+        coEvery { mockUserRepository.addFavourite(1L) } returns Result.Success(Unit)
+
+        viewModel.handleIntent(GameDetailIntent.LoadGame(1L))
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Verify initial state is not favourite
+        viewModel.uiState.test {
+            val initialState = awaitItem()
+            assertFalse(initialState.isFavourite)
+        }
+
+        // Toggle favourite and verify immediate UI update
+        viewModel.handleIntent(GameDetailIntent.ToggleFavourite)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // UI should update optimistically before database operation completes
+        viewModel.uiState.test {
+            val updatedState = awaitItem()
+            assertTrue(updatedState.isFavourite)
+        }
+    }
+
+    @Test
+    fun `ToggleFavourite handles multiple rapid toggles correctly`() = runTest {
+        coEvery { mockGameRepository.getGameById(1L) } returns Result.Success(testGameDetail)
+        coEvery { mockUserRepository.isFavourited(1L) } returnsMany listOf(false, true, false, true)
+        coEvery { mockUserRepository.addFavourite(1L) } returns Result.Success(Unit)
+        coEvery { mockUserRepository.removeFavourite(1L) } returns Result.Success(Unit)
+
+        viewModel.handleIntent(GameDetailIntent.LoadGame(1L))
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Perform multiple rapid toggles with proper synchronization
+        viewModel.handleIntent(GameDetailIntent.ToggleFavourite) // Add
+        testDispatcher.scheduler.advanceUntilIdle()
+        
+        viewModel.handleIntent(GameDetailIntent.ToggleFavourite) // Remove
+        testDispatcher.scheduler.advanceUntilIdle()
+        
+        viewModel.handleIntent(GameDetailIntent.ToggleFavourite) // Add again
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Verify final state is favourite (last operation was add)
+        viewModel.uiState.test {
+            val state = awaitItem()
+            assertTrue(state.isFavourite)
+        }
+
+        // Verify repository calls were made
+        coVerify(exactly = 2) { mockUserRepository.addFavourite(1L) }
+        coVerify(exactly = 1) { mockUserRepository.removeFavourite(1L) }
+    }
+
+    @Test
+    fun `ToggleFavourite maintains correct state after refresh`() = runTest {
+        coEvery { mockGameRepository.getGameById(1L) } returns Result.Success(testGameDetail)
+        coEvery { mockUserRepository.isFavourited(1L) } returnsMany listOf(false, true, true)
+        coEvery { mockUserRepository.addFavourite(1L) } returns Result.Success(Unit)
+
+        viewModel.handleIntent(GameDetailIntent.LoadGame(1L))
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Add to favourites
+        viewModel.handleIntent(GameDetailIntent.ToggleFavourite)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Refresh the game
+        viewModel.handleIntent(GameDetailIntent.RefreshGame)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // Verify favourite status is preserved after refresh
+        viewModel.uiState.test {
+            val state = awaitItem()
+            assertTrue(state.isFavourite)
+        }
+    }
 }

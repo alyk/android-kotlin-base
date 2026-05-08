@@ -86,6 +86,17 @@ fun Genre.displayName(): String {
 }
 
 /**
+ * Extension function to convert string to Genre enum
+ */
+fun String.toGenre(): Genre {
+    return try {
+        Genre.valueOf(this.uppercase())
+    } catch (e: IllegalArgumentException) {
+        Genre.OTHER
+    }
+}
+
+/**
  * Chip for multiple genre selection
  */
 @Composable

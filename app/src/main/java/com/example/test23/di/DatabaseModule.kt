@@ -2,8 +2,11 @@ package com.example.test23.di
 
 import android.content.Context
 import com.example.core.database.AppDatabase
+import com.example.core.database.dao.FavouriteGameDao
 import com.example.core.database.dao.GameDao
 import com.example.core.database.dao.UserDao
+import com.example.core.database.repository.FavouritesRepository
+import com.example.core.database.repository.FavouritesRepositoryImpl
 import com.example.core.database.repository.GameLocalRepository
 import com.example.core.database.repository.GameLocalRepositoryImpl
 import com.example.core.database.repository.UserLocalRepository
@@ -50,5 +53,17 @@ object DatabaseModule {
     @Singleton
     fun provideUserLocalRepository(userDao: UserDao): UserLocalRepository {
         return UserLocalRepositoryImpl(userDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFavouriteGameDao(database: AppDatabase): FavouriteGameDao {
+        return database.favouriteGameDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideFavouritesRepository(favouriteGameDao: FavouriteGameDao): FavouritesRepository {
+        return FavouritesRepositoryImpl(favouriteGameDao)
     }
 }

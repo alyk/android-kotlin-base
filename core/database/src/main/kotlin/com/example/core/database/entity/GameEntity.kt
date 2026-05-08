@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.core.model.Game
 import com.example.core.model.Genre
+import com.example.core.model.LocalFavourite
 import com.example.core.model.Platform
 
 /**
@@ -115,4 +116,54 @@ data class SearchCacheEntity(
     companion object {
         const val CACHE_DURATION_MS = 24 * 60 * 60 * 1000L // 24 hours
     }
+}
+
+/**
+ * Room entity representing a favourite game in the local database.
+ * This is a simplified favourites system that doesn't require user accounts.
+ * Maps to the 'favourite_games' table.
+ */
+@Entity(tableName = "favourite_games")
+data class FavouriteGameEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val gameId: Long,
+    val title: String,
+    val thumbnailUrl: String,
+    val genre: String,
+    val platform: String,
+    val rating: Float,
+    val savedAt: Long = System.currentTimeMillis()
+)
+
+/**
+ * Extension function to convert FavouriteGameEntity to LocalFavourite domain model
+ */
+fun FavouriteGameEntity.toDomain(): LocalFavourite {
+    return LocalFavourite(
+        id = id,
+        gameId = gameId,
+        title = title,
+        thumbnailUrl = thumbnailUrl,
+        genre = genre,
+        platform = platform,
+        rating = rating,
+        savedAt = savedAt
+    )
+}
+
+/**
+ * Extension function to convert LocalFavourite domain model to FavouriteGameEntity
+ */
+fun LocalFavourite.toEntity(): FavouriteGameEntity {
+    return FavouriteGameEntity(
+        id = id,
+        gameId = gameId,
+        title = title,
+        thumbnailUrl = thumbnailUrl,
+        genre = genre,
+        platform = platform,
+        rating = rating,
+        savedAt = savedAt
+    )
 }

@@ -32,13 +32,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.core.model.toGame
 import com.example.core.ui.components.ErrorScreen
 import com.example.core.ui.components.GameCard
 import kotlinx.coroutines.flow.collectLatest
 
 /**
  * Favourites screen composable.
- * Displays the user's favourite games in a grid.
+ * Displays the user's favourite games in a grid using GameCard from core:ui.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +50,7 @@ fun FavouritesScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    
+
     // Handle side effects
     LaunchedEffect(Unit) {
         viewModel.effects.collectLatest { effect ->
@@ -57,8 +58,11 @@ fun FavouritesScreen(
                 is FavouritesEffect.NavigateToGameDetail -> {
                     onGameClick(effect.gameId)
                 }
-                is FavouritesEffect.ShowMessage -> {
-                    snackbarHostState.showSnackbar(effect.message)
+                is FavouritesEffect.ShowFavouriteAdded -> {
+                    snackbarHostState.showSnackbar("${effect.gameTitle} added to favourites")
+                }
+                is FavouritesEffect.ShowFavouriteRemoved -> {
+                    snackbarHostState.showSnackbar("${effect.gameTitle} removed from favourites")
                 }
                 is FavouritesEffect.ShowError -> {
                     snackbarHostState.showSnackbar(effect.message)
@@ -66,7 +70,7 @@ fun FavouritesScreen(
             }
         }
     }
-    
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -81,7 +85,6 @@ fun FavouritesScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
-        // Box with fillMaxSize properly propagates constraints from Scaffold
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -102,8 +105,10 @@ fun FavouritesScreen(
                 }
                 else -> {
                     FavouritesGrid(
-                        favourites = uiState.favourites,
-                        onGameClick = { viewModel.handleIntent(FavouritesIntent.GameClicked(it)) }
+                        favourites = uiState.favouriteGames,
+                        onGameClick = { gameId ->
+                            viewModel.handleIntent(FavouritesIntent.GameClicked(gameId))
+                        }
                     )
                 }
             }
@@ -156,26 +161,31 @@ private fun EmptyFavouritesState() {
     }
 }
 
+/**
+ * Grid of favourite games using GameCard from core:ui.
+ */
 @Composable
 private fun FavouritesGrid(
-    favourites: List<com.example.core.model.Game>,
-    onGameClick: (Long) -> Unit
+    favourites: List<com.example.core.model.LocalFavourite>,
+    onGameClick: (Long) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    // LazyVerticalGrid with fillMaxSize - now has proper constraints from parent Box
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 160.dp),
+        modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxSize()
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(
             items = favourites,
-            key = { it.id }
-        ) { game ->
+            key = { it.gameId }
+        ) { favourite ->
             GameCard(
-                game = game,
-                onGameClick = { onGameClick(game.id) }
+                game = favourite.toGame(),
+                onGameClick = onGameClick,
+                isFavourited = true,
+                onFavouriteClick = null // Disable favourite button on this screen
             )
         }
     }

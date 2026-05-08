@@ -4,9 +4,11 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.core.database.dao.FavouriteGameDao
 import com.example.core.database.dao.GameDao
 import com.example.core.database.dao.UserDao
 import com.example.core.database.entity.FavouriteEntity
+import com.example.core.database.entity.FavouriteGameEntity
 import com.example.core.database.entity.GameDetailEntity
 import com.example.core.database.entity.GameEntity
 import com.example.core.database.entity.SearchCacheEntity
@@ -22,15 +24,17 @@ import com.example.core.database.entity.UserEntity
         GameDetailEntity::class,
         SearchCacheEntity::class,
         UserEntity::class,
-        FavouriteEntity::class
+        FavouriteEntity::class,
+        FavouriteGameEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
     
     abstract fun gameDao(): GameDao
     abstract fun userDao(): UserDao
+    abstract fun favouriteGameDao(): FavouriteGameDao
     
     companion object {
         private const val DATABASE_NAME = "game_database"

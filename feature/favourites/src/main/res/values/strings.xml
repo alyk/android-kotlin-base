@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">test23</string>
     <string name="favourites_title">My Favourites</string>
     <string name="loading_favourites">Loading your favourites...</string>
     <string name="no_favourites_title">No Favourites Yet</string>

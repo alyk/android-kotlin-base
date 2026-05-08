@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.core.model.LocalFavourite
 import com.example.core.model.UserGame
 import com.example.core.ui.components.getGenreColor
 import java.text.SimpleDateFormat
@@ -103,6 +104,92 @@ fun FavouriteGameCard(
                 }
                 
                 userGame.addedAt?.let { timestamp ->
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Added ${formatDate(timestamp)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            
+            // Remove button
+            IconButton(
+                onClick = onRemoveClick,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = "Remove from favourites",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Card component for displaying a local favourite game with remove action.
+ */
+@Composable
+fun LocalFavouriteCard(
+    favourite: LocalFavourite,
+    onGameClick: () -> Unit,
+    onRemoveClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onGameClick),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Thumbnail
+            AsyncImage(
+                model = favourite.thumbnailUrl,
+                contentDescription = favourite.title,
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(70.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
+            
+            Spacer(modifier = Modifier.width(12.dp))
+            
+            // Game info
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = favourite.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                Spacer(modifier = Modifier.height(4.dp))
+                
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    GenreChip(genre = favourite.genre.toGenre())
+                    RatingText(rating = favourite.rating)
+                }
+                
+                favourite.savedAt?.let { timestamp ->
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Added ${formatDate(timestamp)}",

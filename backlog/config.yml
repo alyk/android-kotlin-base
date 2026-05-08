@@ -1,7 +1,8 @@
+project_name: "test23"
 default_status: "To Do"
 statuses: ["To Do", "In Progress", "Done"]
 labels: []
-milestones: ["Project Setup Complete", "Core Module Ready", "Feature Modules Functional", "Navigation Integrated", "Testing Complete", "App Ready for Release"]
+milestones: ["Favourites Feature"]
 date_format: yyyy-mm-dd
 max_column_width: 20
 auto_open_browser: true
