@@ -1,6 +1,6 @@
 package com.example.core.data.repository
 
-import com.example.core.data.datasource.GameRemoteDataSource
+import com.example.core.data.datasource.GameDataSource
 import com.example.core.model.Game
 import com.example.core.model.GameDetail
 import com.example.core.model.Result
@@ -21,10 +21,10 @@ interface GameRepository {
 
 /**
  * Default implementation of GameRepository.
- * Uses remote data source for all operations.
+ * Uses data source for all operations.
  */
 class GameRepositoryImpl(
-    private val remoteDataSource: GameRemoteDataSource = GameRemoteDataSource()
+    private val remoteDataSource: GameDataSource
 ) : GameRepository {
     
     override suspend fun getGames(page: Int, pageSize: Int): Result<List<Game>> {

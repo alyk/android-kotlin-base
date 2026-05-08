@@ -81,6 +81,7 @@ fun FavouritesScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
+        // Box with fillMaxSize properly propagates constraints from Scaffold
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -135,17 +136,17 @@ private fun EmptyFavouritesState() {
             modifier = Modifier.size(80.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
         )
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         Text(
             text = "No Favourites Yet",
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Text(
             text = "Start adding games to your favourites\nby tapping the heart icon on any game",
             style = MaterialTheme.typography.bodyMedium,
@@ -160,6 +161,7 @@ private fun FavouritesGrid(
     favourites: List<com.example.core.model.Game>,
     onGameClick: (Long) -> Unit
 ) {
+    // LazyVerticalGrid with fillMaxSize - now has proper constraints from parent Box
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 160.dp),
         contentPadding = PaddingValues(16.dp),

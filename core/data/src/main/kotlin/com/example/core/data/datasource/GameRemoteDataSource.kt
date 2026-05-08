@@ -1,6 +1,5 @@
 package com.example.core.data.datasource
 
-import com.example.core.data.network.ApiResponse
 import com.example.core.data.network.GameApiService
 import com.example.core.data.network.NetworkClient
 import com.example.core.model.Game
@@ -11,16 +10,27 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
+ * Interface for game data sources.
+ * Allows switching between real and mock implementations.
+ */
+interface GameDataSource {
+    suspend fun getGames(page: Int = 1, pageSize: Int = 20): Result<List<Game>>
+    suspend fun getFeaturedGames(): Result<List<Game>>
+    suspend fun getGameById(gameId: Long): Result<GameDetail>
+    suspend fun searchGames(query: String, page: Int = 1, pageSize: Int = 20): Result<SearchResult>
+    suspend fun getGamesByGenre(genre: String, page: Int = 1, pageSize: Int = 20): Result<List<Game>>
+    suspend fun getGamesByPlatform(platform: String, page: Int = 1, pageSize: Int = 20): Result<List<Game>>
+}
+
+/**
  * Remote data source for fetching game data from the API.
  * Handles all network communication related to games.
  */
 class GameRemoteDataSource(
     private val apiService: GameApiService = NetworkClient.apiService
-) {
-    /**
-     * Fetches a paginated list of games
-     */
-    suspend fun getGames(page: Int = 1, pageSize: Int = 20): Result<List<Game>> {
+) : GameDataSource {
+    
+    override suspend fun getGames(page: Int, pageSize: Int): Result<List<Game>> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getGames(page, pageSize)
@@ -35,10 +45,7 @@ class GameRemoteDataSource(
         }
     }
 
-    /**
-     * Fetches featured games for display on home screen
-     */
-    suspend fun getFeaturedGames(): Result<List<Game>> {
+    override suspend fun getFeaturedGames(): Result<List<Game>> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getFeaturedGames()
@@ -53,10 +60,7 @@ class GameRemoteDataSource(
         }
     }
 
-    /**
-     * Fetches a single game by its ID
-     */
-    suspend fun getGameById(gameId: Long): Result<GameDetail> {
+    override suspend fun getGameById(gameId: Long): Result<GameDetail> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getGameById(gameId)
@@ -71,13 +75,10 @@ class GameRemoteDataSource(
         }
     }
 
-    /**
-     * Searches for games based on filter criteria
-     */
-    suspend fun searchGames(
+    override suspend fun searchGames(
         query: String,
-        page: Int = 1,
-        pageSize: Int = 20
+        page: Int,
+        pageSize: Int
     ): Result<SearchResult> {
         return withContext(Dispatchers.IO) {
             try {
@@ -93,13 +94,10 @@ class GameRemoteDataSource(
         }
     }
 
-    /**
-     * Fetches games filtered by genre
-     */
-    suspend fun getGamesByGenre(
+    override suspend fun getGamesByGenre(
         genre: String,
-        page: Int = 1,
-        pageSize: Int = 20
+        page: Int,
+        pageSize: Int
     ): Result<List<Game>> {
         return withContext(Dispatchers.IO) {
             try {
@@ -115,13 +113,10 @@ class GameRemoteDataSource(
         }
     }
 
-    /**
-     * Fetches games filtered by platform
-     */
-    suspend fun getGamesByPlatform(
+    override suspend fun getGamesByPlatform(
         platform: String,
-        page: Int = 1,
-        pageSize: Int = 20
+        page: Int,
+        pageSize: Int
     ): Result<List<Game>> {
         return withContext(Dispatchers.IO) {
             try {

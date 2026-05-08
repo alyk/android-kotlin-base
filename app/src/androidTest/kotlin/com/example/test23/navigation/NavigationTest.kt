@@ -20,9 +20,10 @@ class NavigationTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun `bottom navigation is displayed on start screen`() {
+    fun bottomNavigationIsDisplayedOnStartScreen() {
         // When app starts
         composeTestRule.setContent {
+            val navController = rememberNavController()
             GameAppTheme {
                 Test23App()
             }
@@ -38,9 +39,10 @@ class NavigationTest {
     }
 
     @Test
-    fun `clicking search shows search screen`() {
+    fun clickingSearchShowsSearchScreen() {
         // When app starts and search is clicked
         composeTestRule.setContent {
+            val navController = rememberNavController()
             GameAppTheme {
                 Test23App()
             }
@@ -58,9 +60,10 @@ class NavigationTest {
     }
 
     @Test
-    fun `clicking favourites shows favourites screen`() {
+    fun clickingFavouritesShowsFavouritesScreen() {
         // When app starts and favourites is clicked
         composeTestRule.setContent {
+            val navController = rememberNavController()
             GameAppTheme {
                 Test23App()
             }
@@ -78,9 +81,10 @@ class NavigationTest {
     }
 
     @Test
-    fun `discover is selected by default`() {
+    fun discoverIsSelectedByDefault() {
         // When app starts
         composeTestRule.setContent {
+            val navController = rememberNavController()
             GameAppTheme {
                 Test23App()
             }
@@ -94,9 +98,10 @@ class NavigationTest {
     }
 
     @Test
-    fun `navigation icons are displayed correctly`() {
+    fun navigationIconsAreDisplayedCorrectly() {
         // When app starts
         composeTestRule.setContent {
+            val navController = rememberNavController()
             GameAppTheme {
                 Test23App()
             }

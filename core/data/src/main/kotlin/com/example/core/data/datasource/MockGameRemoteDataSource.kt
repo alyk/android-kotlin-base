@@ -15,7 +15,7 @@ import kotlinx.coroutines.withContext
  * Mock data source for development and testing.
  * Provides fake game data without making network requests.
  */
-class MockGameRemoteDataSource : GameRemoteDataSource() {
+class MockGameRemoteDataSource : GameDataSource {
 
     private val mockGames = listOf(
         Game(
