@@ -60,6 +60,9 @@ fun FavouritesScreen(
                 is FavouritesEffect.ShowMessage -> {
                     snackbarHostState.showSnackbar(effect.message)
                 }
+                is FavouritesEffect.ShowError -> {
+                    snackbarHostState.showSnackbar(effect.message)
+                }
             }
         }
     }
@@ -170,7 +173,7 @@ private fun FavouritesGrid(
         ) { game ->
             GameCard(
                 game = game,
-                onClick = { onGameClick(game.id) }
+                onGameClick = { onGameClick(game.id) }
             )
         }
     }

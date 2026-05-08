@@ -62,11 +62,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.core.model.Game
+import com.example.core.model.Genre
+import com.example.core.model.Platform
 import com.example.core.ui.components.ErrorScreen
 import com.example.core.ui.components.GenreChip
 import com.example.core.ui.components.LoadingScreen
 import com.example.core.ui.components.RatingText
-import com.example.core.ui.theme.getGenreColor
+import com.example.core.ui.components.GenreChip
+import com.example.core.ui.components.LoadingScreen
+import com.example.core.ui.components.RatingText
+import com.example.core.ui.components.displayName
 import kotlinx.coroutines.flow.collectLatest
 
 /**
@@ -94,10 +99,10 @@ fun DetailScreen(
     LaunchedEffect(Unit) {
         viewModel.effects.collectLatest { effect ->
             when (effect) {
-                is DetailEffect.ShowScreenshot -> onShowScreenshot(effect.url)
-                is DetailEffect.OpenUrl -> onOpenUrl(effect.url)
-                is DetailEffect.ShowMessage -> snackbarHostState.showSnackbar(effect.message)
-                is DetailEffect.NavigateBack -> onNavigateBack()
+                is GameDetailEffect.ShowScreenshot -> onShowScreenshot(effect.url)
+                is GameDetailEffect.OpenUrl -> onOpenUrl(effect.url)
+                is GameDetailEffect.ShowMessage -> snackbarHostState.showSnackbar(effect.message)
+                is GameDetailEffect.NavigateBack -> onNavigateBack()
             }
         }
     }
@@ -135,7 +140,7 @@ fun DetailScreen(
                             )
                         }
                         
-                        if (game.gameUrl != null) {
+                        if (game.thumbnailUrl.isNotBlank()) {
                             IconButton(
                                 onClick = { viewModel.handleIntent(GameDetailIntent.VisitWebsite) }
                             ) {
@@ -153,7 +158,7 @@ fun DetailScreen(
             )
         },
         floatingActionButton = {
-            if (uiState.game?.gameUrl != null) {
+            if (uiState.game?.thumbnailUrl?.isNotBlank() == true) {
                 FloatingActionButton(
                     onClick = { viewModel.handleIntent(GameDetailIntent.VisitWebsite) }
                 ) {
@@ -349,8 +354,8 @@ private fun GameDetailContent(
                     DetailRow(label = "Publisher", value = game.publisher)
                     DetailRow(label = "Developer", value = game.developer)
                     DetailRow(label = "Release Date", value = game.releaseDate)
-                    DetailRow(label = "Genre", value = game.genre)
-                    DetailRow(label = "Platform", value = game.platform)
+                    DetailRow(label = "Genre", value = game.genre.displayName())
+                    DetailRow(label = "Platform", value = game.platform.name)
                 }
             }
         }

@@ -237,7 +237,7 @@ fun GameCardHorizontal(
                 ) {
                     PlatformBadge(platform = game.platform)
                     
-                    RatingBar(rating = game.rating, size = 14)
+                    RatingBar(rating = game.rating, starSize = 14.dp)
                 }
             }
             

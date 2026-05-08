@@ -1,5 +1,7 @@
 package com.example.core.database.exception
 
+import com.example.core.model.Result
+
 /**
  * Custom exceptions for database operations.
  * Provides detailed error information for handling different failure scenarios.
@@ -8,7 +10,7 @@ package com.example.core.database.exception
 /**
  * Exception thrown when a database operation fails
  */
-class DatabaseException(
+open class DatabaseException(
     override val message: String,
     override val cause: Throwable? = null
 ) : Exception(message, cause)
@@ -72,13 +74,13 @@ class TransactionException(
 fun Exception.toDatabaseException(): DatabaseException {
     return when (this) {
         is android.database.sqlite.SQLiteConstraintException -> 
-            ConstraintViolationException(cause = this)
+            ConstraintViolationException(message = message ?: "Constraint violation")
         is android.database.sqlite.SQLiteAbortException -> 
-            ConcurrencyException(cause = this)
+            ConcurrencyException(message = message ?: "Concurrency conflict")
         is android.database.sqlite.SQLiteFullException -> 
-            InsufficientStorageException(cause = this)
+            InsufficientStorageException(message = message ?: "Storage full")
         is IllegalStateException -> 
-            InvalidDatabaseStateException(message = message, cause = this)
+            InvalidDatabaseStateException(message = message ?: "Invalid state")
         else -> DatabaseException(message = message ?: "Unknown database error", cause = this)
     }
 }
@@ -90,6 +92,6 @@ inline fun <T> safeDatabaseOperation(block: () -> T): Result<T> {
     return try {
         Result.Success(block())
     } catch (e: Exception) {
-        Result.Error(e.message ?: "Database operation failed", e)
+        Result.Error(e.message ?: "Database operation failed")
     }
 }

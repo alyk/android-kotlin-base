@@ -14,11 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,7 +27,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
@@ -116,13 +113,6 @@ fun SearchScreen(
                 uiState.hasSearched && uiState.isEmpty -> {
                     EmptySearchScreen(query = uiState.query)
                 }
-                uiState.query.isBlank() && uiState.recentSearches.isNotEmpty() -> {
-                    RecentSearches(
-                        searches = uiState.recentSearches,
-                        onSearchClick = { viewModel.handleIntent(SearchIntent.RecentSearchClicked(it)) },
-                        onClearAll = { viewModel.handleIntent(SearchIntent.ClearRecentSearches) }
-                    )
-                }
                 uiState.query.isBlank() -> {
                     SearchPlaceholder()
                 }
@@ -206,92 +196,21 @@ private fun SearchPlaceholder() {
             modifier = Modifier.size(80.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
         )
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         Text(
             text = "Find Your Next Game",
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Text(
             text = "Search for games by title, genre, or platform",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-@Composable
-private fun RecentSearches(
-    searches: List<String>,
-    onSearchClick: (String) -> Unit,
-    onClearAll: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Recent Searches",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            
-            TextButton(onClick = onClearAll) {
-                Text("Clear All")
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(searches) { search ->
-                RecentSearchChip(
-                    search = search,
-                    onClick = { onSearchClick(search) }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun RecentSearchChip(
-    search: String,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .clip(MaterialTheme.shapes.large)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = Icons.Filled.History,
-            contentDescription = null,
-            modifier = Modifier.size(18.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        
-        Spacer(modifier = Modifier.width(8.dp))
-        
-        Text(
-            text = search,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -314,7 +233,7 @@ private fun SearchResults(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
         }
-        
+
         items(
             items = results,
             key = { it.id }
@@ -348,9 +267,9 @@ private fun SearchResultCard(
                 .clip(MaterialTheme.shapes.small),
             contentScale = ContentScale.Crop
         )
-        
+
         Spacer(modifier = Modifier.width(12.dp))
-        
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = game.title,
@@ -359,17 +278,17 @@ private fun SearchResultCard(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            
+
             Spacer(modifier = Modifier.height(4.dp))
-            
+
             Text(
-                text = game.genre,
+                text = game.genre.name,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Text(
-                text = game.platform,
+                text = game.platform.name,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

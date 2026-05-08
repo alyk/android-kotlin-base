@@ -1,8 +1,13 @@
 package com.example.feature.favourites
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.core.repository.UserRepository
+import com.example.core.data.repository.UserRepository
+import com.example.core.data.repository.UserRepositoryImpl
+import com.example.core.database.datasource.DatabaseDataSource
+import com.example.core.database.repository.UserLocalRepository
+import com.example.core.model.Result
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +21,10 @@ import kotlinx.coroutines.launch
  * Displays the user's favourite games.
  */
 class FavouritesViewModel(
-    private val userRepository: UserRepository
+    context: Context,
+    private val userRepository: UserRepository = UserRepositoryImpl(
+        DatabaseDataSource.getUserLocalRepository(context)
+    )
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(FavouritesUiState())
@@ -66,8 +74,15 @@ class FavouritesViewModel(
     
     private fun removeFavourite(gameId: Long) {
         viewModelScope.launch {
-            userRepository.removeFavourite(gameId)
-            _effects.emit(FavouritesEffect.ShowMessage("Removed from favourites"))
+            when (val result = userRepository.removeFavourite(gameId)) {
+                is Result.Success -> {
+                    _effects.emit(FavouritesEffect.ShowMessage("Removed from favourites"))
+                }
+                is Result.Error -> {
+                    _effects.emit(FavouritesEffect.ShowError(result.message))
+                }
+                is Result.Loading -> { /* Ignore */ }
+            }
         }
     }
     

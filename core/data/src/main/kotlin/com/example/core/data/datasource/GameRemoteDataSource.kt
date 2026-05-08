@@ -2,6 +2,7 @@ package com.example.core.data.datasource
 
 import com.example.core.data.network.ApiResponse
 import com.example.core.data.network.GameApiService
+import com.example.core.data.network.NetworkClient
 import com.example.core.model.Game
 import com.example.core.model.GameDetail
 import com.example.core.model.SearchResult
@@ -29,11 +30,11 @@ class GameRemoteDataSource(
                     Result.Error(response.message ?: "Failed to fetch games")
                 }
             } catch (e: Exception) {
-                Result.Error(e.message ?: "Network error occurred", e)
+                Result.Error(e.message ?: "Network error occurred")
             }
         }
     }
-    
+
     /**
      * Fetches featured games for display on home screen
      */
@@ -47,11 +48,11 @@ class GameRemoteDataSource(
                     Result.Error(response.message ?: "Failed to fetch featured games")
                 }
             } catch (e: Exception) {
-                Result.Error(e.message ?: "Network error occurred", e)
+                Result.Error(e.message ?: "Network error occurred")
             }
         }
     }
-    
+
     /**
      * Fetches a single game by its ID
      */
@@ -65,11 +66,11 @@ class GameRemoteDataSource(
                     Result.Error(response.message ?: "Game not found")
                 }
             } catch (e: Exception) {
-                Result.Error(e.message ?: "Network error occurred", e)
+                Result.Error(e.message ?: "Network error occurred")
             }
         }
     }
-    
+
     /**
      * Searches for games based on filter criteria
      */
@@ -87,11 +88,11 @@ class GameRemoteDataSource(
                     Result.Error(response.message ?: "Search failed")
                 }
             } catch (e: Exception) {
-                Result.Error(e.message ?: "Network error occurred", e)
+                Result.Error(e.message ?: "Network error occurred")
             }
         }
     }
-    
+
     /**
      * Fetches games filtered by genre
      */
@@ -109,11 +110,11 @@ class GameRemoteDataSource(
                     Result.Error(response.message ?: "Failed to fetch games by genre")
                 }
             } catch (e: Exception) {
-                Result.Error(e.message ?: "Network error occurred", e)
+                Result.Error(e.message ?: "Network error occurred")
             }
         }
     }
-    
+
     /**
      * Fetches games filtered by platform
      */
@@ -131,7 +132,7 @@ class GameRemoteDataSource(
                     Result.Error(response.message ?: "Failed to fetch games by platform")
                 }
             } catch (e: Exception) {
-                Result.Error(e.message ?: "Network error occurred", e)
+                Result.Error(e.message ?: "Network error occurred")
             }
         }
     }

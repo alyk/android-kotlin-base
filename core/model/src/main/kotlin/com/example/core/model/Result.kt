@@ -18,7 +18,11 @@ sealed class Result<out T> {
      * Represents a failed operation with an error message
      */
     @Serializable
-    data class Error(val message: String, val exception: Throwable? = null) : Result<Nothing>()
+    data class Error(
+        val message: String,
+        val exceptionClass: String? = null,
+        val exceptionMessage: String? = null
+    ) : Result<Nothing>()
 
     /**
      * Represents a loading state
@@ -54,7 +58,7 @@ sealed class Result<out T> {
      */
     fun getOrThrow(): T = when (this) {
         is Success -> data
-        is Error -> throw exception ?: IllegalStateException(message)
+        is Error -> throw IllegalStateException(message)
         is Loading -> throw IllegalStateException("Result is still loading")
     }
 
@@ -87,8 +91,8 @@ sealed class Result<out T> {
     /**
      * Executes the given block if this is an Error
      */
-    inline fun onError(action: (String, Throwable?) -> Unit): Result<T> {
-        if (this is Error) action(message, exception)
+    inline fun onError(action: (String, String?, String?) -> Unit): Result<T> {
+        if (this is Error) action(message, exceptionClass, exceptionMessage)
         return this
     }
 }

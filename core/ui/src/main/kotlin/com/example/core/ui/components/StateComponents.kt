@@ -9,9 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CloudOff
-import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.SearchOff
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -44,9 +43,9 @@ fun LoadingScreen(
                 modifier = Modifier.size(48.dp),
                 color = MaterialTheme.colorScheme.primary
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
@@ -82,7 +81,7 @@ fun ErrorScreen(
     message: String,
     onRetry: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
-    icon: ImageVector = Icons.Filled.Error,
+    icon: ImageVector = Icons.Filled.Warning,
     title: String = "Something went wrong"
 ) {
     Box(
@@ -100,27 +99,27 @@ fun ErrorScreen(
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.error
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
-            
+
             if (onRetry != null) {
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 Button(onClick = onRetry) {
                     Text("Retry")
                 }
@@ -141,7 +140,7 @@ fun NoNetworkScreen(
         message = "Please check your internet connection and try again.",
         onRetry = onRetry,
         modifier = modifier,
-        icon = Icons.Filled.CloudOff,
+        icon = Icons.Filled.Warning,
         title = "No Internet Connection"
     )
 }
@@ -164,22 +163,22 @@ fun EmptySearchScreen(
             modifier = Modifier.padding(32.dp)
         ) {
             Icon(
-                imageVector = Icons.Filled.SearchOff,
+                imageVector = Icons.Filled.Search,
                 contentDescription = null,
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text(
                 text = "No Results Found",
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = "We couldn't find any games matching \"$query\". Try a different search term.",
                 style = MaterialTheme.typography.bodyMedium,
@@ -198,7 +197,7 @@ fun EmptyListScreen(
     title: String,
     message: String,
     modifier: Modifier = Modifier,
-    icon: ImageVector = Icons.Filled.SearchOff
+    icon: ImageVector = Icons.Filled.Search
 ) {
     Box(
         modifier = modifier.fillMaxSize(),
@@ -215,17 +214,17 @@ fun EmptyListScreen(
                 modifier = Modifier.size(64.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,

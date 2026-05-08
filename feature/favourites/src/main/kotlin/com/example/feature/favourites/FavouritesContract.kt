@@ -29,4 +29,5 @@ sealed class FavouritesIntent {
 sealed class FavouritesEffect {
     data class NavigateToGameDetail(val gameId: Long) : FavouritesEffect()
     data class ShowMessage(val message: String) : FavouritesEffect()
+    data class ShowError(val message: String) : FavouritesEffect()
 }

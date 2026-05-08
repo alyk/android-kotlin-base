@@ -1,16 +1,21 @@
 package com.example.core.ui.components
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.StarBorder
-import androidx.compose.material.icons.filled.StarHalf
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.core.ui.theme.RatingAverage
@@ -35,7 +40,7 @@ fun RatingBar(
         val fullStars = rating.toInt()
         val hasHalfStar = rating - fullStars >= 0.5f
         val emptyStars = maxRating - fullStars - if (hasHalfStar) 1 else 0
-        
+
         // Filled stars
         repeat(fullStars) {
             Icon(
@@ -45,21 +50,21 @@ fun RatingBar(
                 modifier = Modifier.size(starSize)
             )
         }
-        
-        // Half star
+
+        // Half star (using filled star with active color for simplicity)
         if (hasHalfStar) {
             Icon(
-                imageVector = Icons.Filled.StarHalf,
+                imageVector = Icons.Filled.Star,
                 contentDescription = null,
                 tint = activeColor,
                 modifier = Modifier.size(starSize)
             )
         }
-        
+
         // Empty stars
         repeat(emptyStars) {
             Icon(
-                imageVector = Icons.Filled.StarBorder,
+                imageVector = Icons.Filled.Star,
                 contentDescription = null,
                 tint = inactiveColor,
                 modifier = Modifier.size(starSize)
@@ -96,14 +101,14 @@ private fun RatingBadgeContent(
     backgroundColor: Color,
     modifier: Modifier = Modifier
 ) {
-    androidx.compose.material3.Surface(
+    Surface(
         modifier = modifier,
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(8.dp),
         color = backgroundColor
     ) {
-        androidx.compose.foundation.layout.Row(
+        Row(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = Icons.Filled.Star,
@@ -111,10 +116,8 @@ private fun RatingBadgeContent(
                 tint = Color.White,
                 modifier = Modifier.size(14.dp)
             )
-            androidx.compose.foundation.layout.Spacer(
-                modifier = Modifier.size(4.dp)
-            )
-            androidx.compose.material3.Text(
+            Spacer(modifier = Modifier.size(4.dp))
+            Text(
                 text = String.format("%.1f", rating),
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.White
@@ -130,7 +133,8 @@ private fun RatingBadgeContent(
 fun RatingText(
     rating: Float,
     modifier: Modifier = Modifier,
-    textStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyMedium
+    textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+    compact: Boolean = false
 ) {
     val color = when {
         rating >= 4.5f -> RatingExcellent
@@ -138,21 +142,24 @@ fun RatingText(
         rating >= 2.5f -> RatingAverage
         else -> RatingPoor
     }
-    
-    androidx.compose.foundation.layout.Row(
+
+    val iconSize = if (compact) 12.dp else 16.dp
+    val compactTextStyle = if (compact) MaterialTheme.typography.bodySmall else textStyle
+
+    Row(
         modifier = modifier,
-        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             imageVector = Icons.Filled.Star,
             contentDescription = null,
             tint = color,
-            modifier = Modifier.size(16.dp)
+            modifier = Modifier.size(iconSize)
         )
-        androidx.compose.foundation.layout.Spacer(modifier = Modifier.size(4.dp))
-        androidx.compose.material3.Text(
+        Spacer(modifier = Modifier.size(2.dp))
+        Text(
             text = String.format("%.1f", rating),
-            style = textStyle,
+            style = compactTextStyle,
             color = color
         )
     }

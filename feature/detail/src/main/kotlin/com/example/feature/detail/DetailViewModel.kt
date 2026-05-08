@@ -2,9 +2,11 @@ package com.example.feature.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.core.data.repository.GameRepository
+import com.example.core.data.repository.GameRepositoryImpl
+import com.example.core.data.repository.UserRepository
+import com.example.core.data.repository.UserRepositoryImpl
 import com.example.core.model.Result
-import com.example.core.repository.GameRepository
-import com.example.core.repository.UserRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,14 +20,14 @@ import kotlinx.coroutines.launch
  * Displays detailed information about a game.
  */
 class DetailViewModel(
-    private val gameRepository: GameRepository,
-    private val userRepository: UserRepository
+    private val gameRepository: GameRepository = GameRepositoryImpl(),
+    private val userRepository: UserRepository? = null
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(GameDetailUiState())
     val uiState: StateFlow<GameDetailUiState> = _uiState.asStateFlow()
     
-    private val _effects = MutableSharedFlow<DetailEffect>()
+    private val _effects = MutableSharedFlow<GameDetailEffect>()
     val effects = _effects.asSharedFlow()
     
     /**
@@ -45,20 +47,23 @@ class DetailViewModel(
     private fun loadGame(gameId: Long) {
         viewModelScope.launch {
             _uiState.update { it.copy(gameId = gameId, isLoading = true, error = null) }
-            
+
             // Load game details
             when (val result = gameRepository.getGameById(gameId)) {
                 is Result.Success -> {
-                    val game = result.data
+                    val gameDetail = result.data
+                    val game = gameDetail.game
                     _uiState.update {
                         it.copy(
                             game = game,
-                            screenshots = game.screenshots,
-                            minimumRequirements = game.minimumRequirements ?: "",
-                            recommendedRequirements = game.recommendedRequirements ?: ""
+                            screenshots = gameDetail.screenshots,
+                            minimumRequirements = gameDetail.systemRequirements?.let { req ->
+                                "OS: ${req.os}\nProcessor: ${req.processor}\nMemory: ${req.memory}\nGraphics: ${req.graphics}\nStorage: ${req.storage}"
+                            } ?: game.minimumRequirements ?: "",
+                            recommendedRequirements = ""
                         )
                     }
-                    
+
                     // Check if game is in favourites
                     checkFavouriteStatus(gameId)
                 }
@@ -86,30 +91,33 @@ class DetailViewModel(
     
     private fun checkFavouriteStatus(gameId: Long) {
         viewModelScope.launch {
-            userRepository.getUserGame(gameId).collect { userGame ->
-                _uiState.update {
-                    it.copy(
-                        userGame = userGame,
-                        isFavourite = userGame != null,
-                        isLoading = false
-                    )
-                }
+            val isFav = userRepository?.isFavourited(gameId) ?: false
+            _uiState.update {
+                it.copy(
+                    isFavourite = isFav,
+                    isLoading = false
+                )
             }
         }
     }
-    
+
     private fun toggleFavourite() {
         viewModelScope.launch {
             val game = _uiState.value.game ?: return@launch
-            
+
+            if (userRepository == null) {
+                _uiState.update { it.copy(isFavourite = !it.isFavourite) }
+                return@launch
+            }
+
             if (_uiState.value.isFavourite) {
                 userRepository.removeFavourite(game.id)
-                _effects.emit(DetailEffect.ShowMessage("Removed from favourites"))
+                _effects.emit(GameDetailEffect.ShowMessage("Removed from favourites"))
             } else {
-                userRepository.addToFavourites(game)
-                _effects.emit(DetailEffect.ShowMessage("Added to favourites"))
+                userRepository.addFavourite(game.id)
+                _effects.emit(GameDetailEffect.ShowMessage("Added to favourites"))
             }
-            
+
             // Update favourite status
             checkFavouriteStatus(game.id)
         }
@@ -117,16 +125,14 @@ class DetailViewModel(
     
     private fun showScreenshot(screenshotUrl: String) {
         viewModelScope.launch {
-            _effects.emit(DetailEffect.ShowScreenshot(screenshotUrl))
+            _effects.emit(GameDetailEffect.ShowScreenshot(screenshotUrl))
         }
     }
-    
+
     private fun visitWebsite() {
         val game = _uiState.value.game ?: return
-        game.gameUrl?.let { url ->
-            viewModelScope.launch {
-                _effects.emit(DetailEffect.OpenUrl(url))
-            }
+        viewModelScope.launch {
+            _effects.emit(GameDetailEffect.OpenUrl(game.thumbnailUrl))
         }
     }
     

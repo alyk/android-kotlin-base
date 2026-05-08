@@ -9,7 +9,6 @@ data class SearchUiState(
     val query: String = "",
     val isLoading: Boolean = false,
     val searchResults: List<Game> = emptyList(),
-    val recentSearches: List<String> = emptyList(),
     val error: String? = null,
     val hasSearched: Boolean = false,
     val isEmpty: Boolean = false
@@ -24,8 +23,6 @@ sealed class SearchIntent {
     data object Search : SearchIntent()
     data object RefreshSearch : SearchIntent()
     data class GameClicked(val gameId: Long) : SearchIntent()
-    data class RecentSearchClicked(val query: String) : SearchIntent()
-    data object ClearRecentSearches : SearchIntent()
     data object ClearError : SearchIntent()
 }
 

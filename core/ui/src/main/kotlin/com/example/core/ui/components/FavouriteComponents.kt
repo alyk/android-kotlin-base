@@ -34,7 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.core.model.UserGame
-import com.example.core.ui.theme.getGenreColor
+import com.example.core.ui.components.getGenreColor
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

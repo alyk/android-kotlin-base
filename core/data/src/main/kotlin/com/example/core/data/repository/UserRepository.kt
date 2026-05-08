@@ -1,12 +1,10 @@
 package com.example.core.data.repository
 
-import com.example.core.database.datasource.DatabaseDataSource
 import com.example.core.database.repository.UserLocalRepository
-import com.example.core.database.repository.UserLocalRepositoryImpl
-import com.example.core.model.FavouriteWithGame
 import com.example.core.model.Game
 import com.example.core.model.Result
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 /**
  * Repository interface for user-related data operations.
@@ -39,9 +37,7 @@ interface UserRepository {
  * Uses local database for user data operations.
  */
 class UserRepositoryImpl(
-    private val userLocalRepository: UserLocalRepository = UserLocalRepositoryImpl(
-        DatabaseDataSource.getInstance().provideUserDao()
-    )
+    private val userLocalRepository: UserLocalRepository
 ) : UserRepository {
     
     companion object {
@@ -64,9 +60,11 @@ class UserRepositoryImpl(
     }
     
     override suspend fun isFavourited(gameId: Long): Boolean {
-        return when (val result = userLocalRepository.isFavourited(CURRENT_USER_ID, gameId)) {
-            is com.example.core.model.Result.Success -> result.data
-            is com.example.core.model.Result.Error -> false
+        val result = userLocalRepository.isFavourited(CURRENT_USER_ID, gameId)
+        return when (result) {
+            is Result.Success -> result.data
+            is Result.Error -> false
+            is Result.Loading -> false
         }
     }
 }

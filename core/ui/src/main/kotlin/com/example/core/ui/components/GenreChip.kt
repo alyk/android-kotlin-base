@@ -27,7 +27,8 @@ import com.example.core.ui.theme.GenreStrategy
 fun GenreChip(
     genre: Genre,
     modifier: Modifier = Modifier,
-    textStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.labelSmall
+    textStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.labelSmall,
+    compact: Boolean = false
 ) {
     val backgroundColor = getGenreColor(genre)
     
@@ -37,11 +38,11 @@ fun GenreChip(
                 color = backgroundColor.copy(alpha = 0.9f),
                 shape = RoundedCornerShape(16.dp)
             )
-            .padding(horizontal = 10.dp, vertical = 4.dp)
+            .padding(horizontal = if (compact) 6.dp else 10.dp, vertical = if (compact) 2.dp else 4.dp)
     ) {
         Text(
             text = genre.displayName(),
-            style = textStyle,
+            style = if (compact) textStyle.copy(fontSize = androidx.compose.ui.unit.TextUnit(10f, androidx.compose.ui.unit.TextUnitType.Sp)) else textStyle,
             color = Color.White
         )
     }
@@ -50,7 +51,9 @@ fun GenreChip(
 /**
  * Returns the color associated with a genre
  */
+@Composable
 fun getGenreColor(genre: Genre): Color {
+    val fallbackColor = MaterialTheme.colorScheme.primary
     return when (genre) {
         Genre.ACTION -> GenreAction
         Genre.ADVENTURE -> GenreAdventure
@@ -60,13 +63,14 @@ fun getGenreColor(genre: Genre): Color {
         Genre.SPORTS -> GenreSports
         Genre.PUZZLE -> GenrePuzzle
         Genre.INDIE -> GenreIndie
-        Genre.OTHER -> MaterialTheme.colorScheme.primary
+        Genre.OTHER -> fallbackColor
     }
 }
 
 /**
  * Extension function to get display name for genre
  */
+@Composable
 fun Genre.displayName(): String {
     return when (this) {
         Genre.ACTION -> "Action"

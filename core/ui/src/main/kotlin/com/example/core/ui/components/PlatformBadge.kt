@@ -48,21 +48,26 @@ fun PlatformBadge(
 /**
  * Returns the color associated with a platform
  */
+@Composable
 fun getPlatformColor(platform: Platform): Color {
+    val tertiaryColor = MaterialTheme.colorScheme.tertiary
+    val secondaryColor = MaterialTheme.colorScheme.secondary
     return when (platform) {
         Platform.PC -> PlatformPC
         Platform.PLAYSTATION -> PlatformPlayStation
         Platform.XBOX -> PlatformXbox
         Platform.NINTENDO -> PlatformNintendo
         Platform.MOBILE -> PlatformMobile
+        Platform.WEB -> tertiaryColor
         Platform.CROSSPLATFORM -> PlatformCrossPlatform
-        Platform.OTHER -> MaterialTheme.colorScheme.secondary
+        Platform.OTHER -> secondaryColor
     }
 }
 
 /**
  * Extension function to get display name for platform
  */
+@Composable
 fun Platform.displayName(): String {
     return when (this) {
         Platform.PC -> "PC"
@@ -70,6 +75,7 @@ fun Platform.displayName(): String {
         Platform.XBOX -> "Xbox"
         Platform.NINTENDO -> "Nintendo"
         Platform.MOBILE -> "Mobile"
+        Platform.WEB -> "Web"
         Platform.CROSSPLATFORM -> "Cross-Platform"
         Platform.OTHER -> "Other"
     }
@@ -82,7 +88,7 @@ fun Platform.displayName(): String {
 fun PlatformIcon(
     platform: Platform,
     modifier: Modifier = Modifier,
-    tint: Color = getPlatformColor(platform)
+    tint: Color? = null
 ) {
     val icon = when (platform) {
         Platform.PC -> "💻"
@@ -90,10 +96,13 @@ fun PlatformIcon(
         Platform.XBOX -> "🎯"
         Platform.NINTENDO -> "🍀"
         Platform.MOBILE -> "📱"
+        Platform.WEB -> "🌐"
         Platform.CROSSPLATFORM -> "🔄"
         Platform.OTHER -> "🎲"
     }
-    
+
+    val finalTint = tint ?: getPlatformColor(platform)
+
     Text(
         text = icon,
         modifier = modifier

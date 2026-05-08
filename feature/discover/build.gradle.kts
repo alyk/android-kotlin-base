@@ -1,16 +1,30 @@
 plugins {
     id("com.android.library")
-
+    id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
     namespace = "com.example.feature.discover"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
-        minSdk = 21
-        targetSdk = 33
+        minSdk = 26
+        targetSdk = 34
     }
+
+    buildFeatures {
+        compose = true
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 dependencies {

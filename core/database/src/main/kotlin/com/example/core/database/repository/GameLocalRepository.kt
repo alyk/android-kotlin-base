@@ -46,7 +46,7 @@ class GameLocalRepositoryImpl(
             val games = gameDao.getAllGames().drop(offset).take(pageSize)
             Result.Success(games.map { it.toDomain() })
         } catch (e: Exception) {
-            Result.Error("Failed to fetch games: ${e.message}", e)
+            Result.Error("Failed to fetch games: ${e.message}")
         }
     }
     
@@ -55,7 +55,7 @@ class GameLocalRepositoryImpl(
             val games = gameDao.getFeaturedGames()
             Result.Success(games.map { it.toDomain() })
         } catch (e: Exception) {
-            Result.Error("Failed to fetch featured games: ${e.message}", e)
+            Result.Error("Failed to fetch featured games: ${e.message}")
         }
     }
     
@@ -64,7 +64,7 @@ class GameLocalRepositoryImpl(
             val game = gameDao.getGameById(gameId)
             Result.Success(game?.toDomain())
         } catch (e: Exception) {
-            Result.Error("Failed to fetch game: ${e.message}", e)
+            Result.Error("Failed to fetch game: ${e.message}")
         }
     }
     
@@ -74,7 +74,7 @@ class GameLocalRepositoryImpl(
             val games = gameDao.getGamesByGenre(genre).drop(offset).take(pageSize)
             Result.Success(games.map { it.toDomain() })
         } catch (e: Exception) {
-            Result.Error("Failed to fetch games by genre: ${e.message}", e)
+            Result.Error("Failed to fetch games by genre: ${e.message}")
         }
     }
     
@@ -84,7 +84,7 @@ class GameLocalRepositoryImpl(
             val games = gameDao.getGamesByPlatform(platform).drop(offset).take(pageSize)
             Result.Success(games.map { it.toDomain() })
         } catch (e: Exception) {
-            Result.Error("Failed to fetch games by platform: ${e.message}", e)
+            Result.Error("Failed to fetch games by platform: ${e.message}")
         }
     }
     
@@ -93,7 +93,7 @@ class GameLocalRepositoryImpl(
             val games = gameDao.searchGamesByTitle(query)
             Result.Success(games.map { it.toDomain() })
         } catch (e: Exception) {
-            Result.Error("Search failed: ${e.message}", e)
+            Result.Error("Search failed: ${e.message}")
         }
     }
     
@@ -157,7 +157,7 @@ class GameLocalRepositoryImpl(
                 Result.Success(null)
             }
         } catch (e: Exception) {
-            Result.Error("Failed to fetch game detail: ${e.message}", e)
+            Result.Error("Failed to fetch game detail: ${e.message}")
         }
     }
     

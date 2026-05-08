@@ -3,50 +3,55 @@ package com.example.core.model
 import kotlinx.serialization.Serializable
 
 /**
- * Represents a game entity in the domain model.
- * This is the core domain entity used across all feature modules.
+ * Represents a game entity with all its properties.
  */
 @Serializable
 data class Game(
-    val id: Long,
-    val title: String,
-    val description: String,
-    val thumbnailUrl: String,
-    val genre: Genre,
-    val platform: Platform,
-    val releaseDate: String,
-    val rating: Float,
-    val developer: String,
-    val publisher: String,
-    val isFeatured: Boolean = false
+    val id: Long = 0,
+    val title: String = "",
+    val description: String = "",
+    val thumbnailUrl: String = "",
+    val genre: Genre = Genre.OTHER,
+    val platform: Platform = Platform.PC,
+    val developer: String = "",
+    val publisher: String = "",
+    val releaseDate: String = "",
+    val rating: Float = 0f,
+    val price: Double = 0.0,
+    val isFree: Boolean = false,
+    val isFeatured: Boolean = false,
+    val minimumRequirements: String? = null,
+    val recommendedRequirements: String? = null,
+    val screenshots: List<String> = emptyList()
 )
 
 /**
- * Represents the genre/category of a game
+ * Supported game genres.
  */
 @Serializable
-enum class Genre(val displayName: String) {
-    ACTION("Action"),
-    ADVENTURE("Adventure"),
-    RPG("RPG"),
-    STRATEGY("Strategy"),
-    SIMULATION("Simulation"),
-    SPORTS("Sports"),
-    PUZZLE("Puzzle"),
-    HORROR("Horror"),
-    INDIE("Indie"),
-    OTHER("Other")
+enum class Genre {
+    ACTION,
+    ADVENTURE,
+    RPG,
+    STRATEGY,
+    SIMULATION,
+    SPORTS,
+    PUZZLE,
+    INDIE,
+    OTHER
 }
 
 /**
- * Represents the gaming platform
+ * Supported gaming platforms.
  */
 @Serializable
-enum class Platform(val displayName: String) {
-    PC("PC"),
-    PLAYSTATION("PlayStation"),
-    XBOX("Xbox"),
-    NINTENDO("Nintendo"),
-    MOBILE("Mobile"),
-    CROSSPLATFORM("Cross-Platform")
+enum class Platform {
+    PC,
+    PLAYSTATION,
+    XBOX,
+    NINTENDO,
+    MOBILE,
+    WEB,
+    CROSSPLATFORM,
+    OTHER
 }

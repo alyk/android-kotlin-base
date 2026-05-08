@@ -50,7 +50,7 @@ class UserLocalRepositoryImpl(
             val user = users.firstOrNull()?.toDomain()
             Result.Success(user)
         } catch (e: Exception) {
-            Result.Error("Failed to fetch current user: ${e.message}", e)
+            Result.Error("Failed to fetch current user: ${e.message}")
         }
     }
     
@@ -93,7 +93,7 @@ class UserLocalRepositoryImpl(
             val id = userDao.insertFavourite(favourite)
             Result.Success(id)
         } catch (e: Exception) {
-            Result.Error("Failed to add favourite: ${e.message}", e)
+            Result.Error("Failed to add favourite: ${e.message}")
         }
     }
     
@@ -102,7 +102,7 @@ class UserLocalRepositoryImpl(
             userDao.deleteFavouriteByIds(userId, gameId)
             Result.Success(Unit)
         } catch (e: Exception) {
-            Result.Error("Failed to remove favourite: ${e.message}", e)
+            Result.Error("Failed to remove favourite: ${e.message}")
         }
     }
     
@@ -111,7 +111,7 @@ class UserLocalRepositoryImpl(
             val favourites = userDao.getFavouritesByUser(userId)
             Result.Success(favourites.map { it.toDomain() })
         } catch (e: Exception) {
-            Result.Error("Failed to fetch favourites: ${e.message}", e)
+            Result.Error("Failed to fetch favourites: ${e.message}")
         }
     }
     
@@ -151,7 +151,7 @@ class UserLocalRepositoryImpl(
             }
             Result.Success(domainFavourites)
         } catch (e: Exception) {
-            Result.Error("Failed to fetch favourites with games: ${e.message}", e)
+            Result.Error("Failed to fetch favourites with games: ${e.message}")
         }
     }
     
@@ -160,7 +160,7 @@ class UserLocalRepositoryImpl(
             val isFavourited = userDao.isFavourited(userId, gameId)
             Result.Success(isFavourited)
         } catch (e: Exception) {
-            Result.Error("Failed to check favourite status: ${e.message}", e)
+            Result.Error("Failed to check favourite status: ${e.message}")
         }
     }
     
@@ -169,7 +169,7 @@ class UserLocalRepositoryImpl(
             val count = userDao.getFavouriteCount(userId)
             Result.Success(count)
         } catch (e: Exception) {
-            Result.Error("Failed to get favourite count: ${e.message}", e)
+            Result.Error("Failed to get favourite count: ${e.message}")
         }
     }
     
