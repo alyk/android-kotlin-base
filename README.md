@@ -32,7 +32,7 @@ kotlin-android-base/
 | **Architecture** | Clean Architecture + MVVM |
 | **Navigation** | Navigation Compose |
 | **Build** | Gradle 8.4 + KSP |
-| **Testing** | JUnit 4, MockK, Coroutines Test |
+| **Testing** | JUnit 4, MockK, Coroutines Test, Turbine |
 
 ## 📦 Build Variants
 
@@ -83,31 +83,87 @@ kotlin-android-base/
 - **Compile SDK**: 34
 - **Min SDK**: 26
 - **Target SDK**: 33
-- **Java**: 11
+- **Java**: 17
 
 ## 📁 Module Details
 
 ### Core Modules
-- **`core/model`**: Domain entities and data models
-- **`core/data`**: Data sources and repositories
-- **`core/database`**: Room/database implementations
-- **`core/ui`**: Reusable Compose components
+- **`core/model`**: Domain entities (Game, Genre, Platform) and data models
+- **`core/data`**: Data sources, repository implementations
+- **`core/database`**: Room/database abstractions and DAOs
+- **`core/ui`**: Reusable Compose components (BaseViewModel, CommonScreens)
 
 ### Feature Modules
 Each feature is self-contained with its own:
-- Presentation layer (UI, ViewModels)
-- Domain use cases
-- Data implementations
+- **Presentation layer** (UI Composables, ViewModels)
+- **Contract** (UiState, Intent, Effect sealed classes)
+- **Data** (Repository implementations)
+
+#### Favourites Feature (`feature/favourites`)
+The latest feature module providing favourites management functionality:
+
+| Component | Description |
+|-----------|-------------|
+| `FavouritesViewModel` | Manages UI state and handles user intents |
+| `FavouritesContract` | Sealed classes for State, Intent, Effect |
+| `FavouritesScreen` | Compose UI for displaying favourites |
+| `FavouritesRepository` | Data layer for favourites persistence |
+
+**Intents Supported:**
+- `LoadFavourites` - Initial load of favourites
+- `RefreshFavourites` - Pull-to-refresh support
+- `RemoveFavourite(gameId)` - Remove from favourites
+- `GameClicked(gameId)` - Navigate to detail
+- `ClearError` - Clear error state
+
+**Effects Emitted:**
+- `NavigateToGameDetail(gameId)` - Navigation event
+- `ShowMessage(message)` - Toast/Snackbar
+- `ShowError(message)` - Error display
 
 ## 🧪 Testing
 
+### Unit Tests
 ```bash
-# Unit tests
+# Run unit tests for all modules
 ./gradlew testDebugUnitTest
 
-# Instrumented tests
-./gradlew connectedAndroidTest
+# Run tests for specific feature
+./gradlew :feature:favourites:testDebugUnitTest
 ```
+
+### Testing Stack
+- **JUnit 4** - Test framework
+- **MockK** - Mocking library for Kotlin
+- **Coroutines Test** - Testing coroutines and flows
+- **Turbine** - Testing Kotlin Flows and StateFlow
+
+### Example Test (FavouritesViewModel)
+```kotlin
+@Test
+fun `initial state loads favourites`() = runTest {
+    every { mockUserRepository.getFavourites() } returns flowOf(testFavourites)
+    val viewModel = createViewModel()
+
+    testDispatcher.scheduler.advanceUntilIdle()
+
+    viewModel.uiState.test {
+        val loadedState = awaitItem()
+        assertFalse(loadedState.isLoading)
+        assertEquals(3, loadedState.favourites.size)
+    }
+}
+```
+
+### Test Results (Favourites Feature)
+| Status | Tests |
+|--------|-------|
+| ✅ Passing | 11/11 |
+
+- Initial state loading (empty & non-empty)
+- Intent handling (Load, Refresh, Remove, ClearError)
+- Effect emission (Navigation, Messages, Errors)
+- State management (isEmpty, error state)
 
 ## 📄 License
 

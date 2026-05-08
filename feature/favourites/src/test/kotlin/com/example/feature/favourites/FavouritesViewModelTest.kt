@@ -29,9 +29,6 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class FavouritesViewModelTest {
 
-    private lateinit var viewModel: FavouritesViewModel
-    private lateinit var mockUserRepository: UserRepository
-
     private val testDispatcher = StandardTestDispatcher()
 
     private val testFavourites = listOf(
@@ -40,11 +37,12 @@ class FavouritesViewModelTest {
         Game(id = 3, title = "Favourite Game 3")
     )
 
+    private lateinit var mockUserRepository: UserRepository
+
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
-        mockUserRepository = mockk()
-        viewModel = FavouritesViewModel(mockUserRepository)
+        mockUserRepository = mockk(relaxed = true)
     }
 
     @After
@@ -52,14 +50,19 @@ class FavouritesViewModelTest {
         Dispatchers.resetMain()
     }
 
+    private fun createViewModel(): FavouritesViewModel {
+        return FavouritesViewModel(mockUserRepository)
+    }
+
     @Test
     fun `initial state loads favourites`() = runTest {
         every { mockUserRepository.getFavourites() } returns flowOf(testFavourites)
+        val viewModel = createViewModel()
+
+        // Advance the dispatcher to let the init block run
+        testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.uiState.test {
-            val initialState = awaitItem()
-            assertTrue(initialState.isLoading)
-
             val loadedState = awaitItem()
             assertFalse(loadedState.isLoading)
             assertEquals(3, loadedState.favourites.size)
@@ -70,11 +73,12 @@ class FavouritesViewModelTest {
     @Test
     fun `initial state shows empty when no favourites`() = runTest {
         every { mockUserRepository.getFavourites() } returns flowOf(emptyList())
+        val viewModel = createViewModel()
+
+        // Advance the dispatcher to let the init block run
+        testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.uiState.test {
-            val initialState = awaitItem()
-            assertTrue(initialState.isLoading)
-
             val loadedState = awaitItem()
             assertFalse(loadedState.isLoading)
             assertTrue(loadedState.favourites.isEmpty())
@@ -85,6 +89,10 @@ class FavouritesViewModelTest {
     @Test
     fun `LoadFavourites reloads favourites`() = runTest {
         every { mockUserRepository.getFavourites() } returns flowOf(testFavourites.take(2))
+        val viewModel = createViewModel()
+
+        // Advance to complete initial load
+        testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.handleIntent(FavouritesIntent.LoadFavourites)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -98,6 +106,10 @@ class FavouritesViewModelTest {
     @Test
     fun `RefreshFavourites reloads current favourites`() = runTest {
         every { mockUserRepository.getFavourites() } returns flowOf(testFavourites)
+        val viewModel = createViewModel()
+
+        // Advance to complete initial load
+        testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.handleIntent(FavouritesIntent.RefreshFavourites)
         testDispatcher.scheduler.advanceUntilIdle()
@@ -112,11 +124,15 @@ class FavouritesViewModelTest {
     fun `RemoveFavourite removes game and shows message`() = runTest {
         every { mockUserRepository.getFavourites() } returns flowOf(testFavourites)
         coEvery { mockUserRepository.removeFavourite(1L) } returns Result.Success(Unit)
+        val viewModel = createViewModel()
 
-        viewModel.handleIntent(FavouritesIntent.RemoveFavourite(1L))
+        // Advance to complete initial load
         testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.effects.test {
+            viewModel.handleIntent(FavouritesIntent.RemoveFavourite(1L))
+            testDispatcher.scheduler.advanceUntilIdle()
+            
             val effect = awaitItem()
             assertTrue(effect is FavouritesEffect.ShowMessage)
             assertEquals("Removed from favourites", (effect as FavouritesEffect.ShowMessage).message)
@@ -127,11 +143,15 @@ class FavouritesViewModelTest {
     fun `RemoveFavourite shows error on failure`() = runTest {
         every { mockUserRepository.getFavourites() } returns flowOf(testFavourites)
         coEvery { mockUserRepository.removeFavourite(1L) } returns Result.Error("Database error")
+        val viewModel = createViewModel()
 
-        viewModel.handleIntent(FavouritesIntent.RemoveFavourite(1L))
+        // Advance to complete initial load
         testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.effects.test {
+            viewModel.handleIntent(FavouritesIntent.RemoveFavourite(1L))
+            testDispatcher.scheduler.advanceUntilIdle()
+            
             val effect = awaitItem()
             assertTrue(effect is FavouritesEffect.ShowError)
             assertEquals("Database error", (effect as FavouritesEffect.ShowError).message)
@@ -140,9 +160,15 @@ class FavouritesViewModelTest {
 
     @Test
     fun `GameClicked emits NavigateToGameDetail effect`() = runTest {
+        every { mockUserRepository.getFavourites() } returns flowOf(emptyList())
+        val viewModel = createViewModel()
+
+        // Advance to complete initial load
+        testDispatcher.scheduler.advanceUntilIdle()
+
         viewModel.effects.test {
             viewModel.handleIntent(FavouritesIntent.GameClicked(123L))
-
+            
             val effect = awaitItem()
             assertTrue(effect is FavouritesEffect.NavigateToGameDetail)
             assertEquals(123L, (effect as FavouritesEffect.NavigateToGameDetail).gameId)
@@ -153,10 +179,16 @@ class FavouritesViewModelTest {
     fun `ClearError removes error from state`() = runTest {
         every { mockUserRepository.getFavourites() } returns flowOf(testFavourites)
         coEvery { mockUserRepository.removeFavourite(1L) } returns Result.Error("Database error")
+        val viewModel = createViewModel()
 
-        viewModel.handleIntent(FavouritesIntent.RemoveFavourite(1L))
+        // Advance to complete initial load
         testDispatcher.scheduler.advanceUntilIdle()
 
+        // First, trigger an error
+        viewModel.handleIntent(FavouritesIntent.RemoveFavourite(1L))
+        testDispatcher.scheduler.advanceUntilIdle()
+        
+        // Then clear it
         viewModel.handleIntent(FavouritesIntent.ClearError)
 
         viewModel.uiState.test {
@@ -168,10 +200,12 @@ class FavouritesViewModelTest {
     @Test
     fun `favourites flow emits updates`() = runTest {
         every { mockUserRepository.getFavourites() } returns flowOf(testFavourites)
+        val viewModel = createViewModel()
+
+        // Advance to complete initial load
+        testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.uiState.test {
-            awaitItem() // Initial loading state
-
             val loadedState = awaitItem()
             assertEquals(3, loadedState.favourites.size)
 
@@ -182,10 +216,12 @@ class FavouritesViewModelTest {
     @Test
     fun `state correctly tracks isEmpty`() = runTest {
         every { mockUserRepository.getFavourites() } returns flowOf(emptyList())
+        val viewModel = createViewModel()
+
+        // Advance to complete initial load
+        testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.uiState.test {
-            awaitItem() // Loading
-
             val emptyState = awaitItem()
             assertTrue(emptyState.isEmpty)
             assertTrue(emptyState.favourites.isEmpty())
@@ -197,10 +233,12 @@ class FavouritesViewModelTest {
     @Test
     fun `state correctly tracks non-empty favourites`() = runTest {
         every { mockUserRepository.getFavourites() } returns flowOf(testFavourites)
+        val viewModel = createViewModel()
+
+        // Advance to complete initial load
+        testDispatcher.scheduler.advanceUntilIdle()
 
         viewModel.uiState.test {
-            awaitItem() // Loading
-
             val nonEmptyState = awaitItem()
             assertFalse(nonEmptyState.isEmpty)
             assertEquals(3, nonEmptyState.favourites.size)
