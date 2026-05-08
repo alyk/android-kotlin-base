@@ -2,7 +2,6 @@ package com.example.test23.di
 
 import com.example.core.data.network.ApiResponse
 import com.example.core.data.network.GameApiService
-import com.example.core.data.network.NetworkClient
 import com.example.core.model.Game
 import com.example.core.model.GameDetail
 import com.example.core.model.SearchResult

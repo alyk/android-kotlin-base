@@ -6,25 +6,6 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
-// Signing configuration for release builds
-// To enable release signing, create a keystore file and configure the following:
-// 1. Place your keystore file in app/release-keystore.jks
-// 2. Create gradle.properties with:
-//    RELEASE_KEYSTORE_PATH=path/to/release-keystore.jks
-//    RELEASE_KEYSTORE_PASSWORD=your_keystore_password
-//    RELEASE_KEY_ALIAS=your_key_alias
-//    RELEASE_KEY_PASSWORD=your_key_password
-// Or configure signingConfig below directly (less secure for shared repositories)
-signingConfigs {
-    create("release") {
-        // Uncomment and configure for production release:
-        // storeFile = file(System.getenv("RELEASE_KEYSTORE_PATH") ?: "release-keystore.jks")
-        // storePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD") ?: "keystore_password"
-        // keyAlias = System.getenv("RELEASE_KEY_ALIAS") ?: "key_alias"
-        // keyPassword = System.getenv("RELEASE_KEY_PASSWORD") ?: "key_password"
-    }
-}
-
 android {
     namespace = "com.example.test23"
     compileSdk = 34
@@ -63,7 +44,7 @@ android {
             buildConfigField("Boolean", "ENABLE_LOGGING", "false")
 
             // Optimization flags
-            crunchPngs = true
+            isCrunchPngs = true
         }
     }
 
@@ -154,6 +135,19 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.51.1")
     ksp("com.google.dagger:hilt-compiler:2.51.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    // OkHttp with logging
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0")
+
+    // Room
+    implementation("androidx.room:room-runtime:2.6.0")
+    implementation("androidx.room:room-ktx:2.6.0")
+    ksp("androidx.room:room-compiler:2.6.0")
 
     // Feature modules
     implementation(project(":feature:discover"))
