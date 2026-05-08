@@ -1,0 +1,136 @@
+graph TB
+%% ===== FIRST ROW: App Module (Entry Point) =====
+    APP_CLASS["RecipeVaultApp<br/>@HiltAndroidApp"]
+    ACTIVITY["MainActivity<br/>@AndroidEntryPoint"]
+    THEME["RecipeVaultTheme<br/>Material3"]
+
+    APP_CLASS --> ACTIVITY
+    ACTIVITY --> THEME
+
+%% ===== SECOND ROW: Navigation =====
+    NAV_HOST["NavHost<br/>navigation-compose"]
+    BOTTOM_NAV["BottomNavBar<br/>Discover | Search | Favourites"]
+
+    ACTIVITY --> NAV_HOST
+    BOTTOM_NAV --> NAV_HOST
+
+%% ===== THIRD ROW: Presentation Layer =====
+    subgraph PRES["Presentation Layer (Feature Modules)"]
+        direction LR
+
+        subgraph DISCOVER["feature:discover"]
+            DISCOVER_UI["DiscoverScreen<br/>@Composable"]
+            DISCOVER_VM["DiscoverViewModel<br/>@HiltViewModel"]
+        end
+
+        subgraph SEARCH["feature:search"]
+            SEARCH_UI["SearchScreen<br/>@Composable"]
+            SEARCH_VM["SearchViewModel<br/>@HiltViewModel<br/>debounce(300ms)"]
+        end
+
+        subgraph DETAIL["feature:detail"]
+            DETAIL_UI["RecipeDetailScreen<br/>@Composable"]
+            DETAIL_VM["RecipeDetailViewModel<br/>@HiltViewModel"]
+        end
+
+        subgraph FAV["feature:favourites"]
+            FAV_UI["FavouritesScreen<br/>@Composable (Stub)"]
+        end
+
+        DISCOVER_UI --> DISCOVER_VM
+        SEARCH_UI --> SEARCH_VM
+        DETAIL_UI --> DETAIL_VM
+    end
+
+%% Navigation from NavHost to Screens
+    NAV_HOST --> DISCOVER_UI
+    NAV_HOST --> SEARCH_UI
+    NAV_HOST --> DETAIL_UI
+    NAV_HOST --> FAV_UI
+
+%% ===== FOURTH ROW: Shared UI Components =====
+    COMPONENTS["Shared Composables<br/>LoadingIndicator | ErrorView | RecipeCard"]
+    COMPONENTS -.-> THEME
+    DISCOVER_UI -.-> COMPONENTS
+    SEARCH_UI -.-> COMPONENTS
+    DETAIL_UI -.-> COMPONENTS
+    FAV_UI -.-> COMPONENTS
+
+%% ===== FIFTH ROW: Domain Layer =====
+    subgraph DOMAIN["Domain Layer (core:model)"]
+        direction LR
+        RECIPE["Recipe<br/>@Serializable data class"]
+        SEALED["Sealed Interfaces<br/>UiState<br/>&lt;Loading|Success|Error&gt;"]
+    end
+
+%% ViewModels → Domain Models
+    DISCOVER_VM -.-> SEALED
+    SEARCH_VM -.-> SEALED
+    DETAIL_VM -.-> SEALED
+
+%% ===== SIXTH ROW: Data Layer =====
+    subgraph DATA["Data Layer"]
+        direction TB
+
+        subgraph CORE_DATA["core:data"]
+            RETROFIT["Retrofit Instance<br/>@Singleton"]
+            API["RecipeApiService<br/>suspend fun searchRecipes()"]
+            REPO["RecipeRepository<br/>@Singleton<br/>suspend fun → Result&lt;List&lt;Recipe&gt;&gt;"]
+            RETROFIT --> API
+        end
+
+        subgraph CORE_DB["core:database"]
+            ROOM_DB["RecipeDatabase<br/>@Database"]
+            DAO["SearchHistoryDao<br/>Flow&lt;List&lt;Entity&gt;&gt;"]
+            ENTITY["SearchHistoryEntity"]
+            ROOM_DB --> DAO
+            DAO --> ENTITY
+        end
+
+        REPO -->|"maps DTO →"| RECIPE
+        REPO --> API
+    end
+
+%% ViewModels → Repository & DAO
+    DISCOVER_VM --> REPO
+    SEARCH_VM --> REPO
+    DETAIL_VM --> REPO
+    SEARCH_VM --> DAO
+
+%% ===== BOTTOM ROW: Hilt DI =====
+    subgraph DI["DI Container (Hilt)"]
+        direction LR
+        HILT_GRAPH["Hilt Dependency Graph"]
+        SINGLETON["@Singleton Components<br/>Retrofit, RoomDB, Repository"]
+        VIEWMODEL_FACTORY["@HiltViewModel Factory"]
+
+        HILT_GRAPH --> SINGLETON
+        HILT_GRAPH --> VIEWMODEL_FACTORY
+        SINGLETON --> REPO
+        SINGLETON --> RETROFIT
+        SINGLETON --> ROOM_DB
+        SINGLETON --> DAO
+        VIEWMODEL_FACTORY --> DISCOVER_VM
+        VIEWMODEL_FACTORY --> SEARCH_VM
+        VIEWMODEL_FACTORY --> DETAIL_VM
+    end
+
+%% Back-link: Data → DI (dependency injection)
+    REPO -.->|"provided by"| SINGLETON
+    RETROFIT -.->|"provided by"| SINGLETON
+    ROOM_DB -.->|"provided by"| SINGLETON
+
+%% ===== STYLING =====
+    classDef presentation fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:white
+    classDef domain fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:white
+    classDef data fill:#FF9800,stroke:#E65100,stroke-width:2px,color:white
+    classDef ui fill:#9C27B0,stroke:#6A1B9A,stroke-width:2px,color:white
+    classDef app fill:#F44336,stroke:#C62828,stroke-width:2px,color:white
+    classDef di fill:#607D8B,stroke:#37474F,stroke-width:2px,color:white
+
+    class DISCOVER_UI,DISCOVER_VM,SEARCH_UI,SEARCH_VM,DETAIL_UI,DETAIL_VM,FAV_UI presentation
+    class RECIPE,SEALED domain
+    class RETROFIT,API,REPO,ROOM_DB,DAO,ENTITY data
+    class THEME,COMPONENTS ui
+    class ACTIVITY,NAV_HOST,BOTTOM_NAV,APP_CLASS app
+    class HILT_GRAPH,SINGLETON,VIEWMODEL_FACTORY di
