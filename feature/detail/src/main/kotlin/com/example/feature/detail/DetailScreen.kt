@@ -17,17 +17,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Public
@@ -65,9 +60,6 @@ import com.example.core.model.Game
 import com.example.core.model.Genre
 import com.example.core.model.Platform
 import com.example.core.ui.components.ErrorScreen
-import com.example.core.ui.components.GenreChip
-import com.example.core.ui.components.LoadingScreen
-import com.example.core.ui.components.RatingText
 import com.example.core.ui.components.GenreChip
 import com.example.core.ui.components.LoadingScreen
 import com.example.core.ui.components.RatingText
@@ -209,12 +201,8 @@ private fun GameDetailContent(
     recommendedRequirements: String,
     onScreenshotClick: (String) -> Unit
 ) {
-    val scrollState = rememberScrollState()
-    
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
+        modifier = Modifier.fillMaxSize()
     ) {
         // Hero image with pager
         item {
@@ -247,46 +235,59 @@ private fun GameDetailContent(
                         Row(
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                .padding(16.dp)
+                                .background(
+                                    color = Color.Black.copy(alpha = 0.5f),
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                                .padding(horizontal = 12.dp, vertical = 4.dp),
+                            horizontalArrangement = Arrangement.Center
                         ) {
                             repeat(screenshots.size) { index ->
+                                val isSelected = pagerState.currentPage == index
                                 Box(
                                     modifier = Modifier
-                                        .size(8.dp)
+                                        .padding(horizontal = 4.dp)
+                                        .size(if (isSelected) 8.dp else 6.dp)
                                         .clip(RoundedCornerShape(4.dp))
                                         .background(
-                                            if (pagerState.currentPage == index) {
-                                                Color.White
-                                            } else {
-                                                Color.White.copy(alpha = 0.5f)
-                                            }
+                                            if (isSelected) Color.White else Color.White.copy(alpha = 0.5f)
                                         )
                                 )
                             }
                         }
                     }
-                } else {
+                } else if (game.thumbnailUrl.isNotBlank()) {
                     AsyncImage(
                         model = game.thumbnailUrl,
                         contentDescription = game.title,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No Image",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
                 
-                // Gradient overlay
+                // Gradient overlay at bottom
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
+                        .height(80.dp)
+                        .align(Alignment.BottomCenter)
                         .background(
                             Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Transparent,
-                                    Color.Black.copy(alpha = 0.7f)
-                                ),
-                                startY = 0f,
-                                endY = Float.POSITIVE_INFINITY
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f))
                             )
                         )
                 )
@@ -300,18 +301,26 @@ private fun GameDetailContent(
                     Text(
                         text = game.title,
                         style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
                     )
                     
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        GenreChip(genre = game.genre)
                         RatingText(rating = game.rating)
+                        
+                        Text(
+                            text = "•",
+                            color = Color.White.copy(alpha = 0.7f),
+                            modifier = Modifier.padding(horizontal = 4.dp)
+                        )
+                        
+                        Text(
+                            text = game.releaseDate,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.7f)
+                        )
                     }
                 }
             }
@@ -322,6 +331,26 @@ private fun GameDetailContent(
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        GenreChip(genre = game.genre)
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Platform chip
+                PlatformChip(platform = game.platform)
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                // Description
                 Text(
                     text = "About",
                     style = MaterialTheme.typography.titleLarge,
@@ -331,7 +360,7 @@ private fun GameDetailContent(
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
-                    text = game.description ?: "No description available.",
+                    text = game.description,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -345,142 +374,105 @@ private fun GameDetailContent(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                 )
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp)
                 ) {
-                    DetailRow(label = "Publisher", value = game.publisher)
-                    DetailRow(label = "Developer", value = game.developer)
-                    DetailRow(label = "Release Date", value = game.releaseDate)
-                    DetailRow(label = "Genre", value = game.genre.displayName())
-                    DetailRow(label = "Platform", value = game.platform.name)
+                    Text(
+                        text = "Game Details",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    GameDetailRow(
+                        label = "Genre",
+                        value = game.genre.displayName()
+                    )
+                    
+                    GameDetailRow(
+                        label = "Platform",
+                        value = game.platform.displayName()
+                    )
+                    
+                    GameDetailRow(
+                        label = "Release Date",
+                        value = game.releaseDate
+                    )
+                    
+                    GameDetailRow(
+                        label = "Publisher",
+                        value = game.publisher
+                    )
+                    
+                    GameDetailRow(
+                        label = "Developer",
+                        value = game.developer
+                    )
                 }
             }
         }
         
         // System Requirements
-        if (minimumRequirements.isNotBlank() || recommendedRequirements.isNotBlank()) {
-            item {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text(
-                        text = "System Requirements",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
+        item {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(
+                    text = "System Requirements",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                if (minimumRequirements.isNotBlank()) {
+                    SystemRequirementsCard(
+                        title = "Minimum",
+                        requirements = minimumRequirements
                     )
                     
                     Spacer(modifier = Modifier.height(8.dp))
                 }
-            }
-            
-            if (minimumRequirements.isNotBlank()) {
-                item {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            Text(
-                                text = "Minimum",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = minimumRequirements,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
-            }
-            
-            if (recommendedRequirements.isNotBlank()) {
-                item {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            Text(
-                                text = "Recommended",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = recommendedRequirements,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Screenshots section
-        if (screenshots.size > 1) {
-            item {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text(
-                        text = "Screenshots",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
+                
+                if (recommendedRequirements.isNotBlank()) {
+                    SystemRequirementsCard(
+                        title = "Recommended",
+                        requirements = recommendedRequirements
                     )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-            }
-            
-            item {
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp)
-                ) {
-                    items(screenshots) { screenshot ->
-                        AsyncImage(
-                            model = screenshot,
-                            contentDescription = "Screenshot",
-                            modifier = Modifier
-                                .width(240.dp)
-                                .aspectRatio(16f / 9f)
-                                .clip(RoundedCornerShape(8.dp))
-                                .clickable { onScreenshotClick(screenshot) },
-                            contentScale = ContentScale.Crop
-                        )
-                    }
                 }
             }
         }
         
         // Bottom spacing
         item {
-            Spacer(modifier = Modifier.height(80.dp))
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
 
 @Composable
-private fun DetailRow(
+private fun PlatformChip(
+    platform: Platform
+) {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
+    ) {
+        Text(
+            text = platform.displayName(),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            style = MaterialTheme.typography.labelMedium
+        )
+    }
+}
+
+@Composable
+private fun GameDetailRow(
     label: String,
     value: String
 ) {
@@ -493,14 +485,44 @@ private fun DetailRow(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            fontWeight = FontWeight.Medium
         )
+    }
+}
+
+@Composable
+private fun SystemRequirementsCard(
+    title: String,
+    requirements: String
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Text(
+                text = requirements,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
