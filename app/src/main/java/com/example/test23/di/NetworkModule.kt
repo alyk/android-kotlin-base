@@ -1,5 +1,7 @@
 package com.example.test23.di
 
+import com.example.core.data.datasource.GameRemoteDataSource
+import com.example.core.data.datasource.MockGameRemoteDataSource
 import com.example.core.data.network.ApiResponse
 import com.example.core.data.network.GameApiService
 import com.example.core.model.Game
@@ -27,6 +29,12 @@ object NetworkModule {
 
     private const val BASE_URL = "https://api.example.com/v1/"
     private const val TIMEOUT_SECONDS = 30L
+
+    /**
+     * Flag to enable mock data for development.
+     * Set to false to use real API calls.
+     */
+    private const val USE_MOCK_DATA = true
 
     @Provides
     @Singleton

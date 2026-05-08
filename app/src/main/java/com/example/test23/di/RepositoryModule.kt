@@ -1,6 +1,8 @@
 package com.example.test23.di
 
+import com.example.core.data.datasource.GameDataSource
 import com.example.core.data.datasource.GameRemoteDataSource
+import com.example.core.data.datasource.MockGameRemoteDataSource
 import com.example.core.data.repository.GameRepository
 import com.example.core.data.repository.GameRepositoryImpl
 import com.example.core.data.repository.UserRepository
@@ -19,18 +21,28 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object RepositoryModule {
 
+    /**
+     * Flag to enable mock data for development.
+     * Set to false to use real API calls.
+     */
+    private const val USE_MOCK_DATA = true
+
     @Provides
     @Singleton
-    fun provideGameRemoteDataSource(
+    fun provideGameDataSource(
         gameApiService: com.example.core.data.network.GameApiService
-    ): GameRemoteDataSource {
-        return GameRemoteDataSource(gameApiService)
+    ): GameDataSource {
+        return if (USE_MOCK_DATA) {
+            MockGameRemoteDataSource()
+        } else {
+            GameRemoteDataSource(gameApiService)
+        }
     }
 
     @Provides
     @Singleton
-    fun provideGameRepository(gameRemoteDataSource: GameRemoteDataSource): GameRepository {
-        return GameRepositoryImpl(gameRemoteDataSource)
+    fun provideGameRepository(gameDataSource: GameDataSource): GameRepository {
+        return GameRepositoryImpl(gameDataSource)
     }
 
     @Provides
