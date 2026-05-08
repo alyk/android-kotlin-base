@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.core.database.repository.GameLocalRepository
 import com.example.core.database.repository.UserLocalRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import com.example.core.model.Genre
 import com.example.core.model.Platform
 import com.example.core.model.Result
@@ -19,7 +21,8 @@ import kotlinx.coroutines.launch
  * ViewModel for the Discover screen.
  * Manages UI state and handles user intents.
  */
-class DiscoverViewModel(
+@HiltViewModel
+class DiscoverViewModel @Inject constructor(
     private val gameRepository: GameLocalRepository,
     private val userRepository: UserLocalRepository
 ) : ViewModel() {

@@ -19,11 +19,59 @@
                 android:name=".MainActivity"
                 android:exported="true"
                 android:label="@string/app_name"
-                android:theme="@style/Theme.Test23">
+                android:theme="@style/Theme.Test23"
+                android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+            <!-- Deep link for discover screen -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="test23"
+                      android:host="discover"/>
+                <data android:scheme="https"
+                      android:host="test23.example.com"
+                      android:pathPrefix="/discover"/>
+            </intent-filter>
+
+            <!-- Deep link for search screen -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="test23"
+                      android:host="search"/>
+                <data android:scheme="https"
+                      android:host="test23.example.com"
+                      android:pathPrefix="/search"/>
+            </intent-filter>
+
+            <!-- Deep link for favourites screen -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="test23"
+                      android:host="favourites"/>
+                <data android:scheme="https"
+                      android:host="test23.example.com"
+                      android:pathPrefix="/favourites"/>
+            </intent-filter>
+
+            <!-- Deep link for game detail screen -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="test23"
+                      android:host="game"/>
+                <data android:scheme="https"
+                      android:host="test23.example.com"
+                      android:pathPrefix="/game"/>
             </intent-filter>
         </activity>
     </application>
