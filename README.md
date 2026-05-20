@@ -1,3 +1,4 @@
+<img width="1344" height="768" alt="android-arch-sketch" src="https://github.com/user-attachments/assets/ab6502c7-5fdd-46a5-a725-1a183434a4ed" />
 # Android Kotlin Base Project
 
 A production-ready Android application template built with modern architecture and best practices.
