@@ -34,7 +34,7 @@ class GameRemoteDataSource(
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getGames(page, pageSize)
-                if (response.success && response.data != null) {
+                if (response.success) {
                     Result.Success(response.data)
                 } else {
                     Result.Error(response.message ?: "Failed to fetch games")
@@ -49,7 +49,7 @@ class GameRemoteDataSource(
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getFeaturedGames()
-                if (response.success && response.data != null) {
+                if (response.success) {
                     Result.Success(response.data)
                 } else {
                     Result.Error(response.message ?: "Failed to fetch featured games")
@@ -64,7 +64,7 @@ class GameRemoteDataSource(
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getGameById(gameId)
-                if (response.success && response.data != null) {
+                if (response.success) {
                     Result.Success(response.data)
                 } else {
                     Result.Error(response.message ?: "Game not found")
@@ -83,7 +83,7 @@ class GameRemoteDataSource(
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.searchGames(query = query, page = page, pageSize = pageSize)
-                if (response.success && response.data != null) {
+                if (response.success) {
                     Result.Success(response.data)
                 } else {
                     Result.Error(response.message ?: "Search failed")
@@ -102,7 +102,7 @@ class GameRemoteDataSource(
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getGamesByGenre(genre, page, pageSize)
-                if (response.success && response.data != null) {
+                if (response.success) {
                     Result.Success(response.data)
                 } else {
                     Result.Error(response.message ?: "Failed to fetch games by genre")
@@ -121,7 +121,7 @@ class GameRemoteDataSource(
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getGamesByPlatform(platform, page, pageSize)
-                if (response.success && response.data != null) {
+                if (response.success) {
                     Result.Success(response.data)
                 } else {
                     Result.Error(response.message ?: "Failed to fetch games by platform")
