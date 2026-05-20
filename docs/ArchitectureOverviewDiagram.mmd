@@ -1,8 +1,8 @@
 graph TB
 %% ===== FIRST ROW: App Module (Entry Point) =====
-    APP_CLASS["RecipeVaultApp<br/>@HiltAndroidApp"]
+    APP_CLASS["Test23Application<br/>@HiltAndroidApp"]
     ACTIVITY["MainActivity<br/>@AndroidEntryPoint"]
-    THEME["RecipeVaultTheme<br/>Material3"]
+    THEME["Test23Theme<br/>Material3"]
 
     APP_CLASS --> ACTIVITY
     ACTIVITY --> THEME
@@ -29,17 +29,19 @@ graph TB
         end
 
         subgraph DETAIL["feature:detail"]
-            DETAIL_UI["RecipeDetailScreen<br/>@Composable"]
-            DETAIL_VM["RecipeDetailViewModel<br/>@HiltViewModel"]
+            DETAIL_UI["DetailScreen<br/>@Composable"]
+            DETAIL_VM["DetailViewModel<br/>@HiltViewModel"]
         end
 
         subgraph FAV["feature:favourites"]
-            FAV_UI["FavouritesScreen<br/>@Composable (Stub)"]
+            FAV_UI["FavouritesScreen<br/>@Composable"]
+            FAV_VM["FavouritesViewModel<br/>@HiltViewModel"]
         end
 
         DISCOVER_UI --> DISCOVER_VM
         SEARCH_UI --> SEARCH_VM
         DETAIL_UI --> DETAIL_VM
+        FAV_UI --> FAV_VM
     end
 
 %% Navigation from NavHost to Screens
@@ -49,7 +51,7 @@ graph TB
     NAV_HOST --> FAV_UI
 
 %% ===== FOURTH ROW: Shared UI Components =====
-    COMPONENTS["Shared Composables<br/>LoadingIndicator | ErrorView | RecipeCard"]
+    COMPONENTS["Shared Composables (core:ui)<br/>GameCard | GenreChip | RatingBar | SearchBar | StateWrapper"]
     COMPONENTS -.-> THEME
     DISCOVER_UI -.-> COMPONENTS
     SEARCH_UI -.-> COMPONENTS
@@ -59,66 +61,72 @@ graph TB
 %% ===== FIFTH ROW: Domain Layer =====
     subgraph DOMAIN["Domain Layer (core:model)"]
         direction LR
-        RECIPE["Recipe<br/>@Serializable data class"]
-        SEALED["Sealed Interfaces<br/>UiState<br/>&lt;Loading|Success|Error&gt;"]
+        GAME["Game / GameDetail<br/>@Serializable data class"]
+        USER["User / Favourite<br/>@Serializable data class"]
+        RESULT["Result<T><br/>Sealed Interface"]
     end
 
 %% ViewModels → Domain Models
-    DISCOVER_VM -.-> SEALED
-    SEARCH_VM -.-> SEALED
-    DETAIL_VM -.-> SEALED
+    DISCOVER_VM -.-> RESULT
+    SEARCH_VM -.-> RESULT
+    DETAIL_VM -.-> RESULT
+    FAV_VM -.-> RESULT
 
 %% ===== SIXTH ROW: Data Layer =====
     subgraph DATA["Data Layer"]
         direction TB
 
         subgraph CORE_DATA["core:data"]
-            RETROFIT["Retrofit Instance<br/>@Singleton"]
-            API["RecipeApiService<br/>suspend fun searchRecipes()"]
-            REPO["RecipeRepository<br/>@Singleton<br/>suspend fun → Result&lt;List&lt;Recipe&gt;&gt;"]
-            RETROFIT --> API
+            NETWORK["NetworkClient<br/>Retrofit"]
+            REMOTE_DS["GameRemoteDataSource<br/>suspend fun"]
+            GAME_REPO["GameRepository<br/>@Singleton"]
+            USER_REPO["UserRepository<br/>@Singleton"]
+            NETWORK --> REMOTE_DS
+            REMOTE_DS --> GAME_REPO
         end
 
         subgraph CORE_DB["core:database"]
-            ROOM_DB["RecipeDatabase<br/>@Database"]
-            DAO["SearchHistoryDao<br/>Flow&lt;List&lt;Entity&gt;&gt;"]
-            ENTITY["SearchHistoryEntity"]
-            ROOM_DB --> DAO
-            DAO --> ENTITY
+            ROOM_DB["AppDatabase<br/>@Database"]
+            DAOS["GameDao | UserDao | FavouriteGameDao"]
+            LOCAL_REPOS["GameLocalRepository | UserLocalRepository | FavouritesRepository"]
+            ROOM_DB --> DAOS
+            DAOS --> LOCAL_REPOS
         end
 
-        REPO -->|"maps DTO →"| RECIPE
-        REPO --> API
+        GAME_REPO -->|"maps DTO →"| GAME
+        USER_REPO -->|"maps DTO →"| USER
     end
 
-%% ViewModels → Repository & DAO
-    DISCOVER_VM --> REPO
-    SEARCH_VM --> REPO
-    DETAIL_VM --> REPO
-    SEARCH_VM --> DAO
+%% ViewModels → Repository
+    DISCOVER_VM --> GAME_REPO
+    SEARCH_VM --> GAME_REPO
+    DETAIL_VM --> GAME_REPO
+    FAV_VM --> USER_REPO
 
 %% ===== BOTTOM ROW: Hilt DI =====
     subgraph DI["DI Container (Hilt)"]
         direction LR
         HILT_GRAPH["Hilt Dependency Graph"]
-        SINGLETON["@Singleton Components<br/>Retrofit, RoomDB, Repository"]
+        MODULES["NetworkModule | DatabaseModule | RepositoryModule"]
         VIEWMODEL_FACTORY["@HiltViewModel Factory"]
 
-        HILT_GRAPH --> SINGLETON
+        HILT_GRAPH --> MODULES
         HILT_GRAPH --> VIEWMODEL_FACTORY
-        SINGLETON --> REPO
-        SINGLETON --> RETROFIT
-        SINGLETON --> ROOM_DB
-        SINGLETON --> DAO
+        MODULES --> GAME_REPO
+        MODULES --> USER_REPO
+        MODULES --> NETWORK
+        MODULES --> ROOM_DB
         VIEWMODEL_FACTORY --> DISCOVER_VM
         VIEWMODEL_FACTORY --> SEARCH_VM
         VIEWMODEL_FACTORY --> DETAIL_VM
+        VIEWMODEL_FACTORY --> FAV_VM
     end
 
 %% Back-link: Data → DI (dependency injection)
-    REPO -.->|"provided by"| SINGLETON
-    RETROFIT -.->|"provided by"| SINGLETON
-    ROOM_DB -.->|"provided by"| SINGLETON
+    GAME_REPO -.->|"provided by"| MODULES
+    USER_REPO -.->|"provided by"| MODULES
+    NETWORK -.->|"provided by"| MODULES
+    ROOM_DB -.->|"provided by"| MODULES
 
 %% ===== STYLING =====
     classDef presentation fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:white
@@ -128,9 +136,9 @@ graph TB
     classDef app fill:#F44336,stroke:#C62828,stroke-width:2px,color:white
     classDef di fill:#607D8B,stroke:#37474F,stroke-width:2px,color:white
 
-    class DISCOVER_UI,DISCOVER_VM,SEARCH_UI,SEARCH_VM,DETAIL_UI,DETAIL_VM,FAV_UI presentation
-    class RECIPE,SEALED domain
-    class RETROFIT,API,REPO,ROOM_DB,DAO,ENTITY data
+    class DISCOVER_UI,DISCOVER_VM,SEARCH_UI,SEARCH_VM,DETAIL_UI,DETAIL_VM,FAV_UI,FAV_VM presentation
+    class GAME,USER,RESULT domain
+    class NETWORK,REMOTE_DS,GAME_REPO,USER_REPO,ROOM_DB,DAOS,LOCAL_REPOS data
     class THEME,COMPONENTS ui
     class ACTIVITY,NAV_HOST,BOTTOM_NAV,APP_CLASS app
-    class HILT_GRAPH,SINGLETON,VIEWMODEL_FACTORY di
+    class HILT_GRAPH,MODULES,VIEWMODEL_FACTORY di
